@@ -12,6 +12,7 @@ from apps.returns.views import PurchaseReturnCreateView, ReturnViewSet, SalesRet
 from apps.sales.views import SaleViewSet
 from apps.settings.views import NotificationSettingsView, PosCheckoutNotificationOptionsView
 from apps.shops.views import AccessibleShopsView, ShopViewSet
+from apps.sync.views import BootstrapSyncView, CatalogSyncView, SalesSyncView, SyncStatusView
 
 router = DefaultRouter(trailing_slash=False)
 router.register(r"shops", ShopViewSet, basename="shop")
@@ -50,6 +51,10 @@ urlpatterns = [
         PosCheckoutNotificationOptionsView.as_view(),
         name="settings-pos-checkout-notifications",
     ),
+    path("sync/bootstrap", BootstrapSyncView.as_view(), name="sync-bootstrap"),
+    path("sync/catalog", CatalogSyncView.as_view(), name="sync-catalog"),
+    path("sync/sales", SalesSyncView.as_view(), name="sync-sales"),
+    path("sync/status", SyncStatusView.as_view(), name="sync-status"),
     path("pos/products", PosProductListView.as_view(), name="pos-products"),
     path("pos/products/lookup", PosProductLookupView.as_view(), name="pos-products-lookup"),
     path("inventory/transactions", StockTransactionListView.as_view(), name="inventory-transactions"),

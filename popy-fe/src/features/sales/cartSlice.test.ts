@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { configureStore } from '@reduxjs/toolkit';
+import { APP_CONFIG } from '@/constants';
 import {
   addItem,
   cartReducer,
@@ -44,8 +45,9 @@ describe('cartSlice', () => {
     );
     expect(totals.subtotal).toBe(20);
     expect(totals.discount).toBe(5);
-    expect(totals.tax).toBeGreaterThan(0);
-    expect(totals.total).toBeGreaterThan(15);
+    const expectedTax = Number(((totals.subtotal - totals.discount) * APP_CONFIG.taxRate).toFixed(2));
+    expect(totals.tax).toBe(expectedTax);
+    expect(totals.total).toBe(Number((totals.subtotal - totals.discount + expectedTax).toFixed(2)));
   });
 
   it('clears the cart', () => {

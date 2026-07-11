@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -18,6 +18,10 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { useGetCustomersQuery } from '@/features/customers/customersApi';
 import { useGetPosCheckoutNotificationOptionsQuery } from '@/features/settings/settingsApi';
 import { formatCurrency, getErrorMessage } from '@/utils';
+import { useOnlineStatus } from '@/offline/hooks/useOnlineStatus';
+import { canWorkOffline } from '@/offline/offlineAuth';
+import { getCachedCustomers, getCheckoutSettings } from '@/offline/catalogCache';
+import { queueOfflineSale } from '@/offline/queue';
 import { useCreateSaleMutation } from '../salesApi';
 import { clearCart, selectCartTotals, setPaymentMethod } from '../cartSlice';
 import { printSaleReceipt } from '../utils/receipt';
@@ -39,30 +43,42 @@ const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
 export const PaymentDialog = ({ open, onClose }: PaymentDialogProps) => {
   const dispatch = useAppDispatch();
   const cart = useAppSelector((s) => s.cart);
+  const user = useAppSelector((s) => s.auth.user);
+  const shopId = useAppSelector((s) => s.auth.currentShopId);
   const totals = useAppSelector(selectCartTotals);
+  const { isOffline } = useOnlineStatus();
   const [createSale, { isLoading }] = useCreateSaleMutation();
   const { data: checkoutOptions } = useGetPosCheckoutNotificationOptionsQuery(
     undefined,
-    { skip: !open },
+    { skip: !open || isOffline },
   );
   const { data: customers } = useGetCustomersQuery(
     { page: 1, pageSize: 100 },
-    { skip: !open },
+    { skip: !open || isOffline },
   );
+  const [offlineCustomers, setOfflineCustomers] = useState<
+    Array<{ id: string | number; name: string; email?: string; phone?: string }>
+  >([]);
+  const [offlineCheckout, setOfflineCheckout] = useState({
+    canSendEmail: false,
+    canSendSms: false,
+  });
   const [amountPaid, setAmountPaid] = useState('');
   const [sendEmail, setSendEmail] = useState(false);
   const [sendSms, setSendSms] = useState(false);
   const [completedSale, setCompletedSale] = useState<Sale | null>(null);
 
-  const selectedCustomer = useMemo(
-    () => customers?.data.find((c) => c.id === cart.customerId) ?? null,
-    [customers?.data, cart.customerId],
-  );
+  const selectedCustomer = useMemo(() => {
+    const source = isOffline ? offlineCustomers : (customers?.data ?? []);
+    return source.find((c) => c.id === cart.customerId) ?? null;
+  }, [cart.customerId, customers?.data, isOffline, offlineCustomers]);
 
-  const showEmailOption =
-    checkoutOptions?.canSendEmail && Boolean(selectedCustomer?.email);
-  const showSmsOption =
-    checkoutOptions?.canSendSms && Boolean(selectedCustomer?.phone);
+  const showEmailOption = isOffline
+    ? offlineCheckout.canSendEmail && Boolean(selectedCustomer?.email)
+    : checkoutOptions?.canSendEmail && Boolean(selectedCustomer?.email);
+  const showSmsOption = isOffline
+    ? offlineCheckout.canSendSms && Boolean(selectedCustomer?.phone)
+    : checkoutOptions?.canSendSms && Boolean(selectedCustomer?.phone);
 
   const resetDialog = () => {
     setAmountPaid('');
@@ -84,6 +100,19 @@ export const PaymentDialog = ({ open, onClose }: PaymentDialogProps) => {
       ? Math.max(0, (Number(displayAmountPaid) || 0) - totals.total)
       : 0;
 
+  useEffect(() => {
+    if (!open || !isOffline || !shopId) return;
+    void getCachedCustomers(shopId).then(setOfflineCustomers);
+    void getCheckoutSettings(shopId).then((settings) => {
+      if (settings) {
+        setOfflineCheckout({
+          canSendEmail: settings.canSendEmail,
+          canSendSms: settings.canSendSms,
+        });
+      }
+    });
+  }, [open, isOffline, shopId]);
+
   const handleConfirm = async () => {
     const payload: CreateSalePayload = {
       customerId: cart.customerId,
@@ -99,6 +128,39 @@ export const PaymentDialog = ({ open, onClose }: PaymentDialogProps) => {
       sendEmail: showEmailOption ? sendEmail : false,
       sendSms: showSmsOption ? sendSms : false,
     };
+
+    if (isOffline) {
+      if (!shopId || !user) {
+        toast.error('Shop context is required for offline sales.');
+        return;
+      }
+      const ready = await canWorkOffline();
+      if (!ready) {
+        toast.error('Download the catalog while online before checkout.');
+        return;
+      }
+      try {
+        const record = await queueOfflineSale({
+          shopId,
+          payload,
+          cashierName: user.name,
+        });
+        const localSale = {
+          ...record.localSale,
+          items: record.localSale.items.map((item, index) => ({
+            ...item,
+            productName: cart.items[index]?.name ?? item.productName,
+          })),
+        };
+        setCompletedSale(localSale);
+        dispatch(clearCart());
+        toast.success('Sale saved offline — will sync when online.');
+      } catch (error) {
+        toast.error(getErrorMessage(error));
+      }
+      return;
+    }
+
     try {
       const sale = await createSale(payload).unwrap();
       setCompletedSale(sale);

@@ -61,7 +61,7 @@ class TestSalesAPI:
             format="json",
         )
 
-        assert response.status_code == 400
+        assert response.status_code == 409
 
     def test_pos_product_lookup(self, cashier_a, shop_a, product_a):
         client = authed_client(cashier_a, shop_a)

@@ -9,6 +9,7 @@ import { store } from '@/app/store';
 import { useAppSelector } from '@/app/hooks';
 import { darkTheme, lightTheme } from '@/theme';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { OfflineSyncProvider } from '@/offline/OfflineSyncProvider';
 
 const ThemedShell = ({ children }: { children: ReactNode }) => {
   const mode = useAppSelector((state) => state.ui.themeMode);
@@ -18,7 +19,9 @@ const ThemedShell = ({ children }: { children: ReactNode }) => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <ErrorBoundary>{children}</ErrorBoundary>
+        <OfflineSyncProvider>
+          <ErrorBoundary>{children}</ErrorBoundary>
+        </OfflineSyncProvider>
         <ToastContainer
           position="top-right"
           autoClose={4000}

@@ -28,12 +28,18 @@ class Sale(models.Model):
         on_delete=models.PROTECT,
         related_name="sales",
     )
+    client_id = models.CharField(max_length=36, blank=True, null=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
         constraints = [
             models.UniqueConstraint(fields=["shop", "reference"], name="uniq_sale_shop_reference"),
+            models.UniqueConstraint(
+                fields=["shop", "client_id"],
+                condition=models.Q(client_id__isnull=False),
+                name="uniq_sale_shop_client_id",
+            ),
         ]
 
     def __str__(self):
