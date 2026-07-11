@@ -21,7 +21,18 @@ interface OfflineSyncContextValue {
   refreshCounts: () => Promise<void>;
 }
 
-const OfflineSyncContext = createContext<OfflineSyncContextValue | null>(null);
+const defaultOfflineSyncContext: OfflineSyncContextValue = {
+  isSyncing: false,
+  pendingCount: 0,
+  lastMessage: null,
+  downloadCatalog: async () => false,
+  syncNow: async () => undefined,
+  refreshCounts: async () => undefined,
+};
+
+const OfflineSyncContext = createContext<OfflineSyncContextValue>(
+  defaultOfflineSyncContext,
+);
 
 export const OfflineSyncProvider = ({ children }: { children: ReactNode }) => {
   const { isOnline } = useOnlineStatus();
@@ -109,10 +120,4 @@ export const OfflineSyncProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useOfflineSyncContext = () => {
-  const context = useContext(OfflineSyncContext);
-  if (!context) {
-    throw new Error('useOfflineSyncContext requires OfflineSyncProvider');
-  }
-  return context;
-};
+export const useOfflineSyncContext = () => useContext(OfflineSyncContext);
