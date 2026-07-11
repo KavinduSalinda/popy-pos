@@ -2,14 +2,17 @@
 
 ## Overview
 
-The settings page (`/settings`) lets Super Admins configure system-wide notification behaviour. It is the only admin settings screen in the application.
+The settings page (`/settings`) lets Super Admins and **Managers** configure **per-shop** notification behaviour. Each shop has its own notification settings record.
 
 **Page:** `/settings`  
-**Access:** `SETTINGS_MANAGE` (Super Admin only)
+**Access:** `SETTINGS_MANAGE` (Super Admin and Manager)
+
+- **Super Admin** — can change notification settings for whichever shop is active (`X-Shop-Id` / shop switcher)
+- **Manager** — can change notification settings only for their assigned shop
 
 ## Notification settings
 
-Settings are stored as a singleton record and apply immediately after save.
+Settings are stored per shop and apply immediately after save for that shop.
 
 ### POS checkout
 
@@ -50,6 +53,8 @@ Settings are stored as a singleton record and apply immediately after save.
 | PATCH | `/api/settings/notifications` | `SETTINGS_MANAGE` |
 | GET | `/api/settings/pos-checkout-notifications` | `POS_ACCESS` |
 
+All notification settings endpoints are shop-scoped via the `X-Shop-Id` header.
+
 The POS checkout options endpoint returns only what the current cashier is allowed to offer at checkout (no full settings exposure).
 
 ## Defaults
@@ -70,5 +75,6 @@ The POS checkout options endpoint returns only what the current cashier is allow
 ## Related docs
 
 - [Notifications](notifications.md)
+- [Multi-shop](multi-shop.md)
 - [Authentication & roles](authentication-and-roles.md)
 - [Point of Sale](point-of-sale.md)
