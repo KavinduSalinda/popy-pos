@@ -1,0 +1,21 @@
+{% extends "admin/change_form.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'shops/admin/shop_tabs.css' %}">
+<script src="{% static 'shops/admin/shop_tabs.js' %}" defer></script>
+{% endblock %}
+
+{% block inline_field_sets %}
+<div id="shop-admin-tabs" class="shop-admin-tabs">
+  <nav class="shop-admin-tab-nav" role="tablist" aria-label="{% trans 'Shop related records' %}"></nav>
+  <div class="shop-admin-tab-panels">
+    {% for inline_admin_formset in inline_admin_formsets %}
+      <div class="shop-admin-tab-panel inline-group" data-tab-panel>
+        {% include inline_admin_formset.opts.template %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
