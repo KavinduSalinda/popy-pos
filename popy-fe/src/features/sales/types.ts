@@ -28,6 +28,7 @@ export interface SaleItemPayload {
 }
 
 export interface CreateSalePayload {
+  clientId?: string;
   customerId?: ID | null;
   items: SaleItemPayload[];
   discount: number;

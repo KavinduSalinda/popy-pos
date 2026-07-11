@@ -12,6 +12,8 @@ import {
 import { DataTable } from '@/components/tables';
 import { formatCurrency } from '@/utils';
 import { useDebounce } from '@/hooks';
+import { useOnlineStatus } from '@/offline/hooks/useOnlineStatus';
+import { useOfflineCatalog } from '@/offline/hooks/useOfflineCatalog';
 import { useSearchPosProductsQuery } from '../salesApi';
 import { addItem } from '../cartSlice';
 import { BarcodeScanField } from './BarcodeScanField';
@@ -30,10 +32,13 @@ export const ProductGrid = ({
   const [search, setSearch] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
   const debouncedSearch = useDebounce(search, 350);
+  const { isOffline } = useOnlineStatus();
+  const { offlineProducts, offlineLoading } = useOfflineCatalog(debouncedSearch);
+  const { data: onlineData = [], isFetching: onlineFetching } =
+    useSearchPosProductsQuery({ search: debouncedSearch }, { skip: isOffline });
 
-  const { data = [], isFetching } = useSearchPosProductsQuery({
-    search: debouncedSearch,
-  });
+  const data = isOffline ? offlineProducts : onlineData;
+  const isFetching = isOffline ? offlineLoading : onlineFetching;
 
   const addToCart = (product: PosProduct) => {
     if (product.stockQuantity <= 0) return;

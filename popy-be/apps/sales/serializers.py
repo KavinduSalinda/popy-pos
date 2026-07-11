@@ -51,6 +51,7 @@ class SaleItemWriteSerializer(CamelCaseSerializer):
 
 
 class SaleCreateSerializer(CamelCaseSerializer):
+    client_id = serializers.CharField(required=False, allow_blank=True, max_length=36)
     customer_id = serializers.IntegerField(required=False, allow_null=True)
     items = SaleItemWriteSerializer(many=True)
     discount = serializers.DecimalField(max_digits=14, decimal_places=2, default=Decimal("0"))

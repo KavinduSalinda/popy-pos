@@ -32,6 +32,7 @@ popy/
 - **Dashboard & reports** — KPIs, charts, export-style reports
 - **Notifications** — Configurable email/SMS for checkout, inventory, onboarding
 - **Multi-shop** — Isolated data per shop/branch with shop context on every request
+- **Offline mode** — POS catalog cache, offline checkout queue, sync on reconnect
 - **User management** — Role-based access for staff accounts
 
 ## User roles
@@ -63,6 +64,7 @@ See [Authentication & roles](features/authentication-and-roles.md) for the full 
 | [Notifications](features/notifications.md) | Brevo email and Text.lk SMS |
 | [Settings](features/settings.md) | Super-admin notification toggles |
 | [Multi-shop](features/multi-shop.md) | Shop isolation, `X-Shop-Id`, shop switcher |
+| [Offline mode](features/offline-mode.md) | IndexedDB cache, offline POS, sync APIs |
 | [User management](features/user-management.md) | Staff accounts and roles |
 
 ## API overview
@@ -90,6 +92,9 @@ GET    /api/dashboard/summary, /api/dashboard/sales-trend, ...
 GET    /api/reports/sales, /api/reports/inventory, ...
 GET/PATCH /api/settings/notifications
 GET       /api/settings/pos-checkout-notifications
+
+GET    /api/sync/bootstrap, /api/sync/catalog, /api/sync/status
+POST   /api/sync/sales
 ```
 
 Auth routes are under `/api/auth/` (e.g. `/api/auth/login`).

@@ -11,10 +11,13 @@ import {
 import Add from '@mui/icons-material/Add';
 import Remove from '@mui/icons-material/Remove';
 import DeleteOutline from '@mui/icons-material/DeleteOutlined';
+import { useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { EmptyState } from '@/components/common';
 import { formatCurrency } from '@/utils';
 import { useGetCustomersQuery } from '@/features/customers/customersApi';
+import { getCachedCustomers } from '@/offline/catalogCache';
+import { useOnlineStatus } from '@/offline/hooks/useOnlineStatus';
 import {
   clearCart,
   removeItem,
@@ -30,12 +33,30 @@ interface CartPanelProps {
 
 export const CartPanel = ({ onCheckout }: CartPanelProps) => {
   const dispatch = useAppDispatch();
+  const shopId = useAppSelector((s) => s.auth.currentShopId);
   const { items, customerId, discount } = useAppSelector((s) => s.cart);
   const totals = useAppSelector(selectCartTotals);
-  const { data: customers } = useGetCustomersQuery({ page: 1, pageSize: 100 });
+  const { isOffline } = useOnlineStatus();
+  const { data: customers } = useGetCustomersQuery(
+    { page: 1, pageSize: 100 },
+    { skip: isOffline },
+  );
+  const [offlineCustomers, setOfflineCustomers] = useState<
+    Array<{ id: string | number; name: string; phone: string }>
+  >([]);
+
+  useEffect(() => {
+    if (!isOffline || !shopId) return;
+    void getCachedCustomers(shopId).then(setOfflineCustomers);
+  }, [isOffline, shopId]);
+
+  const customerOptions = useMemo(
+    () => (isOffline ? offlineCustomers : (customers?.data ?? [])),
+    [customers?.data, isOffline, offlineCustomers],
+  );
 
   const selectedCustomer =
-    customers?.data.find((c) => c.id === customerId) ?? null;
+    customerOptions.find((c) => c.id === customerId) ?? null;
 
   return (
     <Stack sx={{ height: '100%' }} spacing={1.5}>
@@ -54,7 +75,7 @@ export const CartPanel = ({ onCheckout }: CartPanelProps) => {
 
       <Autocomplete
         size="small"
-        options={customers?.data ?? []}
+        options={customerOptions}
         getOptionLabel={(c) => `${c.name} — ${c.phone}`}
         value={selectedCustomer}
         onChange={(_e, value) => dispatch(setCustomer(value?.id ?? null))}

@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "apps.dashboard",
     "apps.reports",
     "apps.settings",
+    "apps.sync",
 ]
 
 MIDDLEWARE = [

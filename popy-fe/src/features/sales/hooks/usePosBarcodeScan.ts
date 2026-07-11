@@ -1,12 +1,16 @@
 import { useCallback } from 'react';
 import { toast } from 'react-toastify';
-import { useAppDispatch } from '@/app/hooks';
+import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { getErrorMessage } from '@/utils';
+import { lookupCachedProduct } from '@/offline/catalogCache';
+import { useOnlineStatus } from '@/offline/hooks/useOnlineStatus';
 import { useLazyLookupPosProductQuery } from '../salesApi';
 import { addItem } from '../cartSlice';
 
 export const usePosBarcodeScan = () => {
   const dispatch = useAppDispatch();
+  const shopId = useAppSelector((state) => state.auth.currentShopId);
+  const { isOffline } = useOnlineStatus();
   const [lookupProduct] = useLazyLookupPosProductQuery();
 
   const handleScan = useCallback(
@@ -15,7 +19,16 @@ export const usePosBarcodeScan = () => {
       if (!code) return false;
 
       try {
-        const product = await lookupProduct({ code }).unwrap();
+        const product = isOffline
+          ? shopId
+            ? await lookupCachedProduct(shopId, code)
+            : null
+          : await lookupProduct({ code }).unwrap();
+
+        if (!product) {
+          toast.error(`Product not found: ${code}`);
+          return false;
+        }
 
         if (product.stockQuantity <= 0) {
           toast.error(`${product.name} is out of stock`);
@@ -30,7 +43,7 @@ export const usePosBarcodeScan = () => {
         return false;
       }
     },
-    [dispatch, lookupProduct],
+    [dispatch, isOffline, lookupProduct, shopId],
   );
 
   return { handleScan };

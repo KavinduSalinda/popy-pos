@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Box, Paper } from '@mui/material';
 import { useBarcodeScanner } from '@/hooks';
+import { OfflineBanner } from '@/offline/components/OfflineBanner';
 import { ProductGrid } from '../components/ProductGrid';
 import { CartPanel } from '../components/CartPanel';
 import { PaymentDialog } from '../components/PaymentDialog';
@@ -16,14 +17,16 @@ export const PosPage = () => {
   });
 
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gap: 2,
-        gridTemplateColumns: { xs: '1fr', md: '1fr 360px' },
-        height: { md: 'calc(100vh - 112px)' },
-      }}
-    >
+    <Box>
+      <OfflineBanner />
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 2,
+          gridTemplateColumns: { xs: '1fr', md: '1fr 360px' },
+          height: { md: 'calc(100vh - 112px)' },
+        }}
+      >
       <Paper
         variant="outlined"
         sx={{
@@ -41,6 +44,7 @@ export const PosPage = () => {
       </Paper>
 
       <PaymentDialog open={paymentOpen} onClose={() => setPaymentOpen(false)} />
+      </Box>
     </Box>
   );
 };
