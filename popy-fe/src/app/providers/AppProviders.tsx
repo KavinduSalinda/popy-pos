@@ -19,9 +19,7 @@ const ThemedShell = ({ children }: { children: ReactNode }) => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <OfflineSyncProvider>
-          <ErrorBoundary>{children}</ErrorBoundary>
-        </OfflineSyncProvider>
+        <ErrorBoundary>{children}</ErrorBoundary>
         <ToastContainer
           position="top-right"
           autoClose={4000}
@@ -35,6 +33,8 @@ const ThemedShell = ({ children }: { children: ReactNode }) => {
 
 export const AppProviders = ({ children }: { children: ReactNode }) => (
   <Provider store={store}>
-    <ThemedShell>{children}</ThemedShell>
+    <OfflineSyncProvider>
+      <ThemedShell>{children}</ThemedShell>
+    </OfflineSyncProvider>
   </Provider>
 );
