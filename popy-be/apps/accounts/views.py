@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import status, viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -124,8 +125,8 @@ class UserViewSet(ShopScopedMixin, viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, HasPOSPermission]
     required_permission_map = {
-        "list": "USER_MANAGE",
-        "retrieve": "USER_MANAGE",
+        "list": "USER_VIEW",
+        "retrieve": "USER_VIEW",
         "create": "USER_MANAGE",
         "update": "USER_MANAGE",
         "partial_update": "USER_MANAGE",
@@ -146,3 +147,8 @@ class UserViewSet(ShopScopedMixin, viewsets.ModelViewSet):
             notify_new_user(user, temporary_password=password if password else None)
         except Exception:
             pass
+
+    def perform_destroy(self, instance):
+        if instance.id == self.request.user.id:
+            raise ValidationError({"message": "You cannot delete your own account."})
+        instance.delete()
