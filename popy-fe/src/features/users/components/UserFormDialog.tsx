@@ -1,12 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Grid } from '@mui/material';
 import { toast } from 'react-toastify';
 import { Modal } from '@/components/dialogs';
 import { FormSelect, FormSwitch, FormTextField } from '@/components/forms';
+import { useAuth } from '@/hooks/useAuth';
 import { getErrorMessage } from '@/utils';
-import { ROLES, ROLE_OPTIONS, type Role } from '@/constants/roles';
+import { getRoleOptionsForActor, ROLES, type Role } from '@/constants/roles';
 import { useCreateUserMutation, useUpdateUserMutation } from '../usersApi';
 import { userSchema, type UserFormValues } from '../schema';
 import type { ManagedUser, UserPayload } from '../types';
@@ -32,7 +33,12 @@ export const UserFormDialog = ({
 }: UserFormDialogProps) => {
   const [createUser, { isLoading: creating }] = useCreateUserMutation();
   const [updateUser, { isLoading: updating }] = useUpdateUserMutation();
+  const { user: currentUser } = useAuth();
   const isEdit = Boolean(user);
+  const roleOptions = useMemo(
+    () => getRoleOptionsForActor(currentUser?.role),
+    [currentUser?.role],
+  );
 
   const { control, handleSubmit, reset } = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
@@ -114,7 +120,7 @@ export const UserFormDialog = ({
             name="role"
             control={control}
             label="Role"
-            options={ROLE_OPTIONS}
+            options={roleOptions}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>

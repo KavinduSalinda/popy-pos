@@ -13,7 +13,7 @@ import {
 } from '@/components/common';
 import { DataTable } from '@/components/tables';
 import { ConfirmDialog } from '@/components/dialogs';
-import { useListParams } from '@/hooks';
+import { useListParams, useAuth } from '@/hooks';
 import { PERMISSIONS } from '@/constants';
 import { ROLE_LABELS } from '@/constants/roles';
 import { getErrorMessage } from '@/utils';
@@ -22,6 +22,7 @@ import { UserFormDialog } from '../components/UserFormDialog';
 import type { ManagedUser } from '../types';
 
 export const UsersPage = () => {
+  const { user: currentUser } = useAuth();
   const {
     search,
     setSearch,
@@ -107,7 +108,11 @@ export const UsersPage = () => {
     <>
       <PageHeader
         title="Users"
-        subtitle="Manage system users and roles"
+        subtitle={
+          currentUser?.role === 'MANAGER'
+            ? 'Manage staff accounts for your shop'
+            : 'Manage system users and roles'
+        }
         actions={
           <PermissionGuard permission={PERMISSIONS.USER_MANAGE}>
             <Button
