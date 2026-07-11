@@ -71,7 +71,7 @@ Permissions are string constants (e.g. `POS_ACCESS`, `SALE_CREATE`). The backend
 | `REPORT_VIEW` | ✓ | ✓ | — | — |
 | `USER_VIEW` | ✓ | ✓ | — | — |
 | `USER_MANAGE` | ✓ | ✓ | — | — |
-| `SETTINGS_MANAGE` | ✓ | — | — | — |
+| `SETTINGS_MANAGE` | ✓ | ✓ | — | — |
 
 ### Sidebar visibility (by nav permission)
 
@@ -89,7 +89,7 @@ Permissions are string constants (e.g. `POS_ACCESS`, `SALE_CREATE`). The backend
 | Returns | `RETURN_VIEW` | Super Admin, Manager, Cashier, Inventory Officer |
 | Reports | `REPORT_VIEW` | Super Admin, Manager |
 | Users | `USER_VIEW` | Super Admin, Manager |
-| Settings | `SETTINGS_MANAGE` | Super Admin only |
+| Settings | `SETTINGS_MANAGE` | Super Admin, Manager |
 
 Cashiers receive `CATEGORY_VIEW` from the backend on login, so they may see **Categories** in the sidebar even though they cannot manage categories.
 

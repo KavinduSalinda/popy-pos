@@ -26,7 +26,7 @@ If credentials are missing, sends are skipped and logged on the server.
 
 Sending a receipt at checkout requires **all** of the following:
 
-1. Global email or SMS enabled in [Settings](settings.md)
+1. Shop-level email or SMS enabled in [Settings](settings.md)
 2. “Allow cashiers to send” toggle enabled for that channel
 3. Cashier role has `POS_CHECKOUT_SEND_EMAIL` or `POS_CHECKOUT_SEND_SMS`
 4. Customer selected with email (email) or phone (SMS)
@@ -38,8 +38,8 @@ Checkout options for the current user: `GET /api/settings/pos-checkout-notificat
 
 Triggered inside `adjust_stock()` when quantity crosses from above the reorder level to at or below it, **and** the product's `reorder_level` is greater than zero.
 
-- **Email:** sent to all active Super Admins and Managers.
-- **SMS:** sent to the phone number configured in settings (`lowInventoryAlertPhone`).
+- **Email:** sent to active Super Admins and Managers assigned to that shop.
+- **SMS:** sent to the phone number configured in that shop's settings (`lowInventoryAlertPhone`).
 
 ## Message content
 
@@ -52,7 +52,7 @@ Receipt emails/SMS include sale reference, total, and item summary. Welcome mess
 | `apps/core/notifications/email.py` | Brevo send utility |
 | `apps/core/notifications/sms.py` | Text.lk send utility |
 | `apps/core/notifications/service.py` | Scenario dispatch logic |
-| `apps/settings/models.py` | Per-scenario toggles |
+| `apps/settings/models.py` | Per-shop, per-scenario toggles |
 
 ## Related docs
 

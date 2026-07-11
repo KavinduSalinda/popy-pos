@@ -87,7 +87,7 @@ Only **Super Admin** has `SHOP_MANAGE` (via wildcard permissions).
 
 ## Notifications
 
-Notification toggles and manager alert phones are **per shop**. Low-inventory emails go to managers assigned to that shop.
+Notification toggles and manager alert phones are **per shop**. Managers with `SETTINGS_MANAGE` can update notification settings for their shop from the dashboard **Settings** page. Low-inventory emails go to managers assigned to that shop.
 
 ## Setup & migration
 

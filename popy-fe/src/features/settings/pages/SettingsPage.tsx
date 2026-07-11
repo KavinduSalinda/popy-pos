@@ -13,7 +13,9 @@ import {
   Typography,
 } from '@mui/material';
 import { toast } from 'react-toastify';
+import { useAppSelector } from '@/app/hooks';
 import { PageHeader } from '@/components/common';
+import { useAuth } from '@/hooks';
 import { getErrorMessage } from '@/utils';
 import {
   useGetNotificationSettingsQuery,
@@ -89,10 +91,12 @@ const defaultSettings: NotificationSettings = {
 
 interface NotificationSettingsFormProps {
   initialSettings: NotificationSettings;
+  shopName?: string;
 }
 
 const NotificationSettingsForm = ({
   initialSettings,
+  shopName,
 }: NotificationSettingsFormProps) => {
   const [form, setForm] = useState(initialSettings);
   const [updateSettings, { isLoading: saving }] =
@@ -123,7 +127,11 @@ const NotificationSettingsForm = ({
     <>
       <PageHeader
         title="Settings"
-        subtitle="Configure email (Brevo) and SMS (Text.lk) notifications for each scenario."
+        subtitle={
+          shopName
+            ? `Configure email and SMS notifications for ${shopName}.`
+            : 'Configure email (Brevo) and SMS (Text.lk) notifications for each scenario.'
+        }
         actions={
           <Button variant="contained" onClick={handleSave} disabled={saving}>
             {saving ? 'Saving…' : 'Save changes'}
@@ -287,6 +295,11 @@ const NotificationSettingsForm = ({
 
 export const SettingsPage = () => {
   const { data, isLoading } = useGetNotificationSettingsQuery();
+  const { user } = useAuth();
+  const currentShopId = useAppSelector((state) => state.auth.currentShopId);
+  const shopName = user?.shops?.find(
+    (shop) => String(shop.id) === String(currentShopId),
+  )?.name;
 
   if (isLoading || !data) {
     return (
@@ -300,6 +313,7 @@ export const SettingsPage = () => {
     <NotificationSettingsForm
       key={data.updatedAt}
       initialSettings={data ?? defaultSettings}
+      shopName={shopName}
     />
   );
 };

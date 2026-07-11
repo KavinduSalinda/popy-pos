@@ -28,6 +28,7 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         "DASHBOARD_VIEW",
         "USER_VIEW",
         "USER_MANAGE",
+        "SETTINGS_MANAGE",
     },
     "CASHIER": {
         "PRODUCT_VIEW",
