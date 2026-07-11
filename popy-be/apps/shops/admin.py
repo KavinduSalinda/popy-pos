@@ -147,7 +147,6 @@ class ShopAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "phone", "is_active", "updated_at")
     list_filter = ("is_active",)
     search_fields = ("name", "code")
-    change_form_template = "admin/shops/shop/change_form.html"
 
     fieldsets = (
         (None, {"fields": ("name", "code", "address", "phone", "email", "is_active")}),
