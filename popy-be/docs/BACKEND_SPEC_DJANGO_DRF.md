@@ -111,13 +111,9 @@ SIMPLE_JWT = {
 }
 ```
 
-### 1.5 CORS (frontend dev)
+### 1.5 CORS
 
-```python
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
-```
+Frontend origins come from `CORS_ALLOWED_ORIGINS` (comma-separated, no trailing slash). The `X-Shop-Id` request header is allowed. See [Deploy](../../docs/DEPLOY.md).
 
 ### 1.6 Root URL map
 

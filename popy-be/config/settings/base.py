@@ -1,13 +1,21 @@
 from datetime import timedelta
 from pathlib import Path
 
-from decouple import config
+from corsheaders.defaults import default_headers
+from decouple import AutoConfig, Config, RepositoryEnv
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+_env_file = BASE_DIR / ".env"
+config = Config(RepositoryEnv(str(_env_file))) if _env_file.is_file() else AutoConfig()
+
+
+def csv_list(name: str, default: str = "") -> list[str]:
+    return [item.strip() for item in config(name, default=default).split(",") if item.strip()]
+
 
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-dev-key-change-in-production")
 DEBUG = config("DEBUG", default=True, cast=bool)
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = csv_list("ALLOWED_HOSTS", "localhost,127.0.0.1")
 
 # REST API uses slashless URLs (matches frontend RTK Query paths).
 APPEND_SLASH = False
@@ -83,6 +91,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.User"
@@ -111,11 +120,15 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
-
+CORS_ALLOWED_ORIGINS = csv_list(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173",
+)
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = (
+    *default_headers,
+    "x-shop-id",
+)
 
 # Brevo (transactional email)
 BREVO_API_KEY = config("BREVO_API_KEY", default="")
