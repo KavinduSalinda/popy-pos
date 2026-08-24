@@ -1,5 +1,3 @@
-from decouple import config
-
 from .base import *  # noqa: F403
 
 if config("USE_SQLITE", default=True, cast=bool):
