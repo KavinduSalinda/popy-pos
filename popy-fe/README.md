@@ -37,6 +37,8 @@ App runs at `http://localhost:5173`.
 
 Configure a dev proxy in `vite.config.ts` if your API runs on another origin.
 
+For production, set `VITE_API_BASE_URL` to the full Django URL including `/api` (see [Deploy](../docs/DEPLOY.md)). The value is read at **build** time.
+
 ## Scripts
 
 | Command | Description |

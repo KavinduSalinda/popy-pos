@@ -4,6 +4,21 @@ Popy POS is a full-stack point-of-sale and inventory management system for retai
 
 > **Note:** Feature docs describe behaviour verified against the `popy-be` and `popy-fe` codebases. The [backend permission matrix](features/authentication-and-roles.md#permission-matrix-backend) is the authority for role access.
 
+cashier@gmail.com   
+ca@12345
+
+nadee@gmail.com
+Ca!@1234    
+
+sudubole@gmail.com  
+User@123    
+
+user@gmail.com      
+user12345
+
+kavindu@gmail.com   
+12!@qwas
+
 ## Architecture
 
 | Layer | Technology |
@@ -124,6 +139,10 @@ npm run dev
 ```
 
 Default URLs: API `http://localhost:8000`, app `http://localhost:5173`.
+
+### Deploy (free)
+
+Host the API on PythonAnywhere (MySQL) and the React app on Vercel. Step-by-step: [Deploy](DEPLOY.md).
 
 ### Notification providers (optional)
 

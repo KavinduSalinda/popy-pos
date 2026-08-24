@@ -25,6 +25,8 @@ API base: `http://localhost:8000/api`
 
 - **SQLite** (default): set `USE_SQLITE=True` in `.env` — no MySQL required for local dev.
 - **MySQL:** set `USE_SQLITE=False` and configure `DB_*` variables in `.env`.
+- **CORS:** `CORS_ALLOWED_ORIGINS` is a comma-separated list of frontend origins (no trailing slash). Production must include the hosted SPA URL.
+- **Deploy:** see [docs/DEPLOY.md](../docs/DEPLOY.md) (PythonAnywhere + Vercel).
 
 ## Project layout
 
