@@ -11,7 +11,7 @@ from apps.sales.serializers import SaleCreateSerializer, SaleSerializer
 
 
 class SaleViewSet(ShopScopedMixin, viewsets.ModelViewSet):
-    queryset = Sale.objects.select_related("customer", "cashier").prefetch_related("items__product").all()
+    queryset = Sale.objects.select_related("customer", "cashier", "shop").prefetch_related("items__product").all()
     serializer_class = SaleSerializer
     permission_classes = [IsAuthenticated, HasPOSPermission]
     required_permission_map = {

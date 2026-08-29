@@ -31,16 +31,37 @@ export const getSalePaymentSummary = (sale: Sale): SalePaymentSummary => {
 export const formatPaymentMethod = (method: PaymentMethod): string =>
   PAYMENT_LABELS[method] ?? method;
 
+export const getReceiptShopName = (sale: Sale, fallback?: string | null): string =>
+  sale.shopName?.trim() || fallback?.trim() || APP_CONFIG.name;
+
+export const getReceiptShopPhone = (
+  sale: Sale,
+  fallback?: string | null,
+): string => sale.shopPhone?.trim() || fallback?.trim() || '';
+
 const receiptRow = (label: string, value: string, bold = false) =>
   `<div class="row${bold ? ' bold' : ''}"><span>${escapeHtml(label)}</span><span>${escapeHtml(value)}</span></div>`;
 
-export const buildReceiptHtml = (sale: Sale): string => {
+export const buildReceiptHtml = (
+  sale: Sale,
+  shopName?: string | null,
+  shopPhone?: string | null,
+): string => {
   const { amountPaid, change, balanceDue } = getSalePaymentSummary(sale);
+  const hotline = getReceiptShopPhone(sale, shopPhone);
+  const hotlineHtml = hotline
+    ? `<p>Hotline: ${escapeHtml(hotline)}</p>`
+    : '';
   const itemsHtml = sale.items
-    .map(
-      (item) =>
-        `<div class="row"><span>${item.quantity} × ${escapeHtml(item.productName)}</span><span>${escapeHtml(formatCurrency(item.total))}</span></div>`,
-    )
+    .map((item) => {
+      const sku = item.sku?.trim()
+        ? `<div class="sku">${escapeHtml(item.sku)}</div>`
+        : '';
+      return `<div class="item">
+        <div class="row"><span>${item.quantity} × ${escapeHtml(item.productName)}</span><span>${escapeHtml(formatCurrency(item.total))}</span></div>
+        ${sku}
+      </div>`;
+    })
     .join('');
 
   const paymentRows = [
@@ -82,14 +103,15 @@ export const buildReceiptHtml = (sale: Sale): string => {
         margin: 2px 0;
       }
       .row.bold { font-weight: 700; }
+      .item { margin: 6px 0; }
+      .sku { font-size: 10px; color: #666; margin: 0 0 2px; }
       .footer { text-align: center; margin-top: 8px; font-size: 11px; }
       @media print { body { margin: 8px auto; } }
     </style>
   </head>
   <body>
     <div class="header">
-      <h1>${escapeHtml(APP_CONFIG.name)}</h1>
-      <p>Sales Receipt</p>
+      <h1>${escapeHtml(getReceiptShopName(sale, shopName))}</h1>
       <p>${escapeHtml(sale.reference)}</p>
       <p>${escapeHtml(formatDateTime(sale.createdAt))}</p>
     </div>
@@ -99,6 +121,7 @@ export const buildReceiptHtml = (sale: Sale): string => {
     ${paymentRows}
     <div class="divider"></div>
     <p class="footer">Thank you for your purchase!</p>
+    <p class="footer">Hotline: ${escapeHtml(hotline)}</p>
   </body>
 </html>`;
 };
@@ -136,5 +159,8 @@ const printHtmlInIframe = (html: string): boolean => {
   return true;
 };
 
-export const printSaleReceipt = (sale: Sale): boolean =>
-  printHtmlInIframe(buildReceiptHtml(sale));
+export const printSaleReceipt = (
+  sale: Sale,
+  shopName?: string | null,
+  shopPhone?: string | null,
+): boolean => printHtmlInIframe(buildReceiptHtml(sale, shopName, shopPhone));

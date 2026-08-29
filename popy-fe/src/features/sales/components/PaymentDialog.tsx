@@ -145,11 +145,17 @@ export const PaymentDialog = ({ open, onClose }: PaymentDialogProps) => {
           payload,
           cashierName: user.name,
         });
+        const currentShop = user.shops?.find(
+          (shop) => String(shop.id) === String(shopId),
+        );
         const localSale = {
           ...record.localSale,
+          shopName: currentShop?.name,
+          shopPhone: currentShop?.phone,
           items: record.localSale.items.map((item, index) => ({
             ...item,
             productName: cart.items[index]?.name ?? item.productName,
+            sku: cart.items[index]?.sku ?? item.sku,
           })),
         };
         setCompletedSale(localSale);
@@ -163,7 +169,18 @@ export const PaymentDialog = ({ open, onClose }: PaymentDialogProps) => {
 
     try {
       const sale = await createSale(payload).unwrap();
-      setCompletedSale(sale);
+      const currentShop = user?.shops?.find(
+        (shop) => String(shop.id) === String(shopId),
+      );
+      setCompletedSale({
+        ...sale,
+        shopName: sale.shopName ?? currentShop?.name,
+        shopPhone: sale.shopPhone ?? currentShop?.phone,
+        items: sale.items.map((item, index) => ({
+          ...item,
+          sku: item.sku ?? cart.items[index]?.sku,
+        })),
+      });
       dispatch(clearCart());
       toast.success('Sale completed');
     } catch (error) {
@@ -181,7 +198,14 @@ export const PaymentDialog = ({ open, onClose }: PaymentDialogProps) => {
           <>
             <Button
               startIcon={<Print />}
-              onClick={() => completedSale && printSaleReceipt(completedSale)}
+              onClick={() =>
+                completedSale &&
+                printSaleReceipt(
+                  completedSale,
+                  completedSale.shopName,
+                  completedSale.shopPhone,
+                )
+              }
             >
               Print
             </Button>

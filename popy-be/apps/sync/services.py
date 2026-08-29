@@ -111,7 +111,7 @@ def create_sale_from_payload(*, shop, user, payload: dict) -> tuple[Sale, str]:
             )
 
     sale = (
-        Sale.objects.select_related("customer", "cashier")
+        Sale.objects.select_related("customer", "cashier", "shop")
         .prefetch_related("items__product")
         .get(pk=sale.pk)
     )
