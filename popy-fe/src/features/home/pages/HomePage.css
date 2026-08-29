@@ -243,12 +243,18 @@ html[lang='si'] .popy-home .brand {
 }
 
 .popy-home .hero {
+  position: relative;
   padding: 96px 0 110px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   height: calc(100vh - 76px);
+}
+
+.popy-home .hero-stars {
+  pointer-events: none;
+  z-index: 0;
 }
 
 .popy-home .hero-grid {
