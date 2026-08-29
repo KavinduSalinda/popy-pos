@@ -1,4 +1,6 @@
 export const ROUTES = {
+  HOME: '/',
+
   // Auth
   LOGIN: '/login',
   FORGOT_PASSWORD: '/forgot-password',

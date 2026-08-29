@@ -11,20 +11,25 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import PointOfSale from '@mui/icons-material/PointOfSale';
 import { NavLink } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { setMobileSidebarOpen } from '@/app/uiSlice';
 import { usePermissions } from '@/hooks/usePermissions';
 import { NAV_ITEMS } from '@/app/routes/navigation';
 import { APP_CONFIG } from '@/constants';
+import { LOGO_SRC } from '@/features/home/brand';
 
 export const SIDEBAR_WIDTH = 256;
 export const SIDEBAR_COLLAPSED_WIDTH = 72;
 
 const Brand = ({ collapsed }: { collapsed: boolean }) => (
   <Toolbar sx={{ gap: 1.5, px: 2 }}>
-    <PointOfSale color="primary" />
+    <Box
+      component="img"
+      src={LOGO_SRC}
+      alt=""
+      sx={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
+    />
     {!collapsed && (
       <Typography variant="h6" noWrap fontWeight={800}>
         {APP_CONFIG.name}

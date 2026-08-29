@@ -26,7 +26,12 @@ export const LoginPage = () => {
     try {
       await login(values).unwrap();
       const state = location.state as LocationState | null;
-      navigate(state?.from ?? ROUTES.DASHBOARD, { replace: true });
+      const from = state?.from;
+      const next =
+        from && from !== ROUTES.HOME && from !== ROUTES.LOGIN
+          ? from
+          : ROUTES.DASHBOARD;
+      navigate(next, { replace: true });
     } catch {
       /* error surfaced via the `error` state */
     }
