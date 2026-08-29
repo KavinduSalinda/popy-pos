@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom/vitest';
+import '@/i18n/config';
 import { afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 

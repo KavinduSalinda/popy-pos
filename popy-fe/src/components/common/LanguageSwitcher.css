@@ -1,0 +1,36 @@
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border: 1px solid var(--line, #d7e4f0);
+  border-radius: 999px;
+  background: var(--paper, #fbfaf6);
+  flex-shrink: 0;
+}
+
+.lang-switch button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--neutral, #5f5e5a);
+  font: inherit;
+  font-family: 'Noto Sans Sinhala', Inter, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  padding: 7px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  min-width: 40px;
+}
+
+.lang-switch button.is-active {
+  background: var(--primary, #185fa5);
+  color: #fff;
+}
+
+.lang-switch button:focus-visible {
+  outline: 2px solid var(--primary-dark, #124a80);
+  outline-offset: 2px;
+}

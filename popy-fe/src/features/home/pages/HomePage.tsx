@@ -1,150 +1,66 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 import { useAuth } from '@/hooks/useAuth';
 import { ROUTES } from '@/constants';
 import { LOGO_SRC } from '../brand';
 import './HomePage.css';
-import { CloudShader } from "@/components/ui/cloud-shader";
 
 const NAV_LINKS = [
-  { label: 'Features', href: '#features' },
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'How it works', href: '#how' },
-  { label: 'Contact', href: '#contact' },
-];
+  { key: 'features', href: '#features' },
+  { key: 'pricing', href: '#pricing' },
+  { key: 'how', href: '#how' },
+  { key: 'contact', href: '#contact' },
+] as const;
 
-const FEATURES = [
-  {
-    ln: 'LN 01 — INVENTORY',
-    title: 'Live inventory sync',
-    body: 'Stock updates the instant a sale rings up — across every register and every branch.',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M21 8l-9-5-9 5 9 5 9-5z" />
-        <path d="M3 8v8l9 5 9-5V8" />
-        <path d="M12 13v8" />
-      </svg>
-    ),
-  },
-  {
-    ln: 'LN 02 — BRANCHES',
-    title: 'Multi-branch by default',
-    body: 'Run one shop or twenty from a single dashboard, with per-location pricing and stock.',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M3 9l9-7 9 7" />
-        <path d="M9 22V12h6v10" />
-        <path d="M4 22h16" />
-      </svg>
-    ),
-  },
-  {
-    ln: 'LN 03 — REPORTING',
-    title: 'Real-time reporting',
-    body: "Know today's revenue, margin, and top sellers before you close the till.",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M4 19V9" />
-        <path d="M12 19V5" />
-        <path d="M20 19v-7" />
-      </svg>
-    ),
-  },
-  {
-    ln: 'LN 04 — PAYMENTS',
-    title: 'Secure payments',
-    body: 'Card, cash, and QR — reconciled automatically, with every transaction logged.',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <rect x="2" y="5" width="20" height="14" rx="2" />
-        <path d="M2 10h20" />
-      </svg>
-    ),
-  },
-];
+const FEATURE_KEYS = ['inventory', 'branches', 'reporting', 'payments'] as const;
 
-const STEPS = [
-  {
-    title: 'Set up your catalog',
-    body: 'Import your products, prices, and stock — by spreadsheet or barcode scan.',
-  },
-  {
-    title: 'Start selling',
-    body: 'Ring up sales from any till or device, online or offline.',
-  },
-  {
-    title: 'Track every branch',
-    body: 'Watch sales, stock, and margin roll up in one live dashboard.',
-  },
-];
+const FEATURE_ICONS: Record<(typeof FEATURE_KEYS)[number], ReactNode> = {
+  inventory: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M21 8l-9-5-9 5 9 5 9-5z" />
+      <path d="M3 8v8l9 5 9-5V8" />
+      <path d="M12 13v8" />
+    </svg>
+  ),
+  branches: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M3 9l9-7 9 7" />
+      <path d="M9 22V12h6v10" />
+      <path d="M4 22h16" />
+    </svg>
+  ),
+  reporting: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M4 19V9" />
+      <path d="M12 19V5" />
+      <path d="M20 19v-7" />
+    </svg>
+  ),
+  payments: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <path d="M2 10h20" />
+    </svg>
+  ),
+};
+
+const STEP_KEYS = ['step1', 'step2', 'step3'] as const;
 
 const TESTIMONIALS = [
-  {
-    quote:
-      'Stock across our two branches finally matches. We stopped over-ordering within the first month.',
-    initials: 'NR',
-    name: 'Nadeesha R.',
-    role: 'Owner, Kandy General Store',
-  },
-  {
-    quote:
-      "Reporting used to take a spreadsheet and an hour. Now it's already there when I open the shop.",
-    initials: 'SP',
-    name: 'Sanjaya P.',
-    role: 'Manager, Popy Market',
-  },
-  {
-    quote: 'Support actually picks up. That alone was worth the switch from our old system.',
-    initials: 'TW',
-    name: 'Thilini W.',
-    role: 'Owner, Fresh Corner',
-  },
-];
+  { key: 'one', initials: 'NR', name: 'Nadeesha R.' },
+  { key: 'two', initials: 'SP', name: 'Sanjaya P.' },
+  { key: 'three', initials: 'TW', name: 'Thilini W.' },
+] as const;
 
 const PLANS = [
-  {
-    name: 'Starter',
-    amount: 'LKR 4,900',
-    period: '/mo',
-    desc: 'For a single till, single location.',
-    featured: false,
-    items: [
-      '1 branch, 2 registers',
-      'Inventory tracking',
-      'Daily sales reports',
-      'Email support',
-    ],
-    cta: 'Choose Starter',
-  },
-  {
-    name: 'Business',
-    amount: 'LKR 12,900',
-    period: '/mo',
-    desc: 'For growing multi-branch shops.',
-    featured: true,
-    items: [
-      'Up to 5 branches',
-      'Real-time reporting',
-      'Staff roles & permissions',
-      'Priority support',
-    ],
-    cta: 'Choose Business',
-  },
-  {
-    name: 'Enterprise',
-    amount: 'Custom',
-    period: '',
-    desc: 'For chains with custom needs.',
-    featured: false,
-    items: [
-      'Unlimited branches',
-      'Dedicated account manager',
-      'Custom integrations',
-      'SLA-backed uptime',
-    ],
-    cta: 'Talk to sales',
-  },
-];
+  { key: 'starter', amount: 'LKR 4,900', featured: false },
+  { key: 'business', amount: 'LKR 12,900', featured: true },
+  { key: 'enterprise', amount: null, featured: false },
+] as const;
+
+const PLAN_ITEMS = ['item1', 'item2', 'item3', 'item4'] as const;
 
 const RECEIPT_LINES = [
   { qty: '1x', name: 'Coca-Cola 1.5L', price: '420.00' },
@@ -163,11 +79,12 @@ const Brand = () => (
 );
 
 const HomePage = () => {
+  const { t } = useTranslation('home');
   const { isAuthenticated } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const startTo = isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN;
-  const startLabel = isAuthenticated ? 'Go to dashboard' : 'Get started';
-  const loginLabel = isAuthenticated ? 'Open POS' : 'Log in';
+  const startLabel = isAuthenticated ? t('nav.goDashboard') : t('nav.getStarted');
+  const loginLabel = isAuthenticated ? t('nav.openPos') : t('nav.login');
   const loginTo = isAuthenticated ? ROUTES.POS : ROUTES.LOGIN;
 
   useEffect(() => {
@@ -188,17 +105,18 @@ const HomePage = () => {
     <div className="popy-home">
       <header>
         <nav className="wrap">
-          <a href="#top" aria-label="Popy home">
+          <a href="#top" aria-label={t('nav.homeAria')}>
             <Brand />
           </a>
           <div className={`nav-links${menuOpen ? ' open' : ''}`}>
             {NAV_LINKS.map((link) => (
               <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)}>
-                {link.label}
+                {t(`nav.${link.key}`)}
               </a>
             ))}
           </div>
           <div className="nav-cta">
+            <LanguageSwitcher />
             <RouterLink to={loginTo} className="btn btn-ghost btn-sm">
               {loginLabel}
             </RouterLink>
@@ -208,7 +126,7 @@ const HomePage = () => {
             <button
               type="button"
               className="nav-toggle"
-              aria-label="Open menu"
+              aria-label={menuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
               onClick={() => setMenuOpen((open) => !open)}
             >
               {menuOpen ? '✕' : '☰'}
@@ -218,37 +136,33 @@ const HomePage = () => {
       </header>
 
       <section className="hero relative" id="top">
-      {/* <CloudShader className="absolute inset-0 z-0" /> */}
         <div className="wrap hero-grid relative z-10 from-primary to-primary-dark opacity-90">
           <div>
             <div className="eyebrow">
               <span className="eyebrow-dot" />
-              Point of sale, built for retail
+              {t('hero.eyebrow')}
             </div>
             <h1>
-              Every sale, <em>accounted for.</em>
+              <Trans i18nKey="hero.title" ns="home" components={{ em: <em /> }} />
             </h1>
-            <p className="lead">
-              Popy runs your checkout, tracks your stock across every branch, and closes
-              your books — reliably, down to every transaction.
-            </p>
+            <p className="lead">{t('hero.lead')}</p>
             <div className="hero-actions">
               <RouterLink to={startTo} className="btn btn-primary">
-                Start free trial
+                {t('hero.startTrial')}
               </RouterLink>
               <RouterLink to={loginTo} className="btn btn-ghost">
-                Book a demo
+                {t('hero.bookDemo')}
               </RouterLink>
             </div>
             <div className="hero-note">
               <span>
-                <span className="check">✓</span> No card required
+                <span className="check">✓</span> {t('hero.noCard')}
               </span>
               <span>
-                <span className="check">✓</span> Setup in under a day
+                <span className="check">✓</span> {t('hero.setupFast')}
               </span>
               <span>
-                <span className="check">✓</span> Multi-branch ready
+                <span className="check">✓</span> {t('hero.multiBranch')}
               </span>
             </div>
           </div>
@@ -260,8 +174,8 @@ const HomePage = () => {
                 <div className="rmark">
                   <img src={LOGO_SRC} alt="" />
                 </div>
-                <div className="rname">POPY MARKET — MAIN</div>
-                <div className="rsub">TXN #48213 · 09:41 AM</div>
+                <div className="rname">{t('receipt.shop')}</div>
+                <div className="rsub">{t('receipt.txn')}</div>
               </div>
               <div className="receipt-divider" />
               <div className="rlines">
@@ -277,11 +191,11 @@ const HomePage = () => {
               </div>
               <div className="receipt-divider" />
               <div className="rtotal">
-                <span>TOTAL</span>
+                <span>{t('receipt.total')}</span>
                 <span>LKR 6,120.00</span>
               </div>
               <div className="rbarcode" />
-              <div className="rstamp">APPROVED</div>
+              <div className="rstamp">{t('receipt.approved')}</div>
             </div>
           </div>
         </div>
@@ -291,19 +205,19 @@ const HomePage = () => {
         <div className="wrap trust-grid">
           <div>
             <div className="trust-num">500+</div>
-            <div className="trust-label">Businesses running on Popy</div>
+            <div className="trust-label">{t('trust.businesses')}</div>
           </div>
           <div>
             <div className="trust-num">99.9%</div>
-            <div className="trust-label">Uptime, every branch</div>
+            <div className="trust-label">{t('trust.uptime')}</div>
           </div>
           <div>
             <div className="trust-num">2.1M</div>
-            <div className="trust-label">Transactions processed / mo</div>
+            <div className="trust-label">{t('trust.transactions')}</div>
           </div>
           <div>
             <div className="trust-num">24/7</div>
-            <div className="trust-label">Human support</div>
+            <div className="trust-label">{t('trust.support')}</div>
           </div>
         </div>
       </div>
@@ -313,21 +227,18 @@ const HomePage = () => {
           <div className="section-head reveal">
             <div className="eyebrow">
               <span className="eyebrow-dot" />
-              Features
+              {t('features.eyebrow')}
             </div>
-            <h2>Everything a checkout counter needs to run itself.</h2>
-            <p>
-              Four systems working from one shared ledger — so stock, sales, and reporting
-              never drift out of sync.
-            </p>
+            <h2>{t('features.title')}</h2>
+            <p>{t('features.lead')}</p>
           </div>
           <div className="feat-grid reveal">
-            {FEATURES.map((feature) => (
-              <div className="feat-card" key={feature.ln}>
-                <div className="feat-ln">{feature.ln}</div>
-                <div className="feat-icon">{feature.icon}</div>
-                <h3>{feature.title}</h3>
-                <p>{feature.body}</p>
+            {FEATURE_KEYS.map((key) => (
+              <div className="feat-card" key={key}>
+                <div className="feat-ln">{t(`features.${key}.ln`)}</div>
+                <div className="feat-icon">{FEATURE_ICONS[key]}</div>
+                <h3>{t(`features.${key}.title`)}</h3>
+                <p>{t(`features.${key}.body`)}</p>
               </div>
             ))}
           </div>
@@ -339,17 +250,17 @@ const HomePage = () => {
           <div className="section-head reveal">
             <div className="eyebrow">
               <span className="eyebrow-dot" />
-              Process
+              {t('how.eyebrow')}
             </div>
-            <h2>Live in three steps.</h2>
-            <p>No IT team required — most shops are ringing up sales the same day.</p>
+            <h2>{t('how.title')}</h2>
+            <p>{t('how.lead')}</p>
           </div>
           <div className="steps reveal">
-            {STEPS.map((step, index) => (
-              <div className="step" key={step.title}>
+            {STEP_KEYS.map((key, index) => (
+              <div className="step" key={key}>
                 <div className="step-num">0{index + 1}</div>
-                <h3>{step.title}</h3>
-                <p>{step.body}</p>
+                <h3>{t(`how.${key}.title`)}</h3>
+                <p>{t(`how.${key}.body`)}</p>
               </div>
             ))}
           </div>
@@ -361,19 +272,19 @@ const HomePage = () => {
           <div className="section-head reveal">
             <div className="eyebrow">
               <span className="eyebrow-dot" />
-              Trusted by owners
+              {t('testimonials.eyebrow')}
             </div>
-            <h2>What shop owners say after switching.</h2>
+            <h2>{t('testimonials.title')}</h2>
           </div>
           <div className="testi-grid reveal">
             {TESTIMONIALS.map((item) => (
-              <div className="testi" key={item.name}>
-                <p className="testi-quote">{item.quote}</p>
+              <div className="testi" key={item.key}>
+                <p className="testi-quote">{t(`testimonials.${item.key}.quote`)}</p>
                 <div className="testi-who">
                   <div className="testi-avatar">{item.initials}</div>
                   <div>
                     <div className="testi-name">{item.name}</div>
-                    <div className="testi-role">{item.role}</div>
+                    <div className="testi-role">{t(`testimonials.${item.key}.role`)}</div>
                   </div>
                 </div>
               </div>
@@ -387,34 +298,34 @@ const HomePage = () => {
           <div className="section-head reveal">
             <div className="eyebrow">
               <span className="eyebrow-dot" />
-              Pricing
+              {t('pricing.eyebrow')}
             </div>
-            <h2>Straightforward plans, no surprise fees.</h2>
-            <p>Every plan includes unlimited transactions and free support.</p>
+            <h2>{t('pricing.title')}</h2>
+            <p>{t('pricing.lead')}</p>
           </div>
           <div className="price-grid reveal">
             {PLANS.map((plan) => (
               <div
                 className={`price-card${plan.featured ? ' featured' : ''}`}
-                key={plan.name}
+                key={plan.key}
               >
-                {plan.featured ? <div className="price-tag">Most popular</div> : null}
-                <div className="price-name">{plan.name}</div>
+                {plan.featured ? <div className="price-tag">{t('pricing.popular')}</div> : null}
+                <div className="price-name">{t(`pricing.${plan.key}.name`)}</div>
                 <div className="price-amt">
-                  {plan.amount}
-                  {plan.period ? <span>{plan.period}</span> : null}
+                  {plan.amount ?? t('pricing.enterprise.amount')}
+                  {plan.amount ? <span>{t('pricing.perMonth')}</span> : null}
                 </div>
-                <p className="price-desc">{plan.desc}</p>
+                <p className="price-desc">{t(`pricing.${plan.key}.desc`)}</p>
                 <ul className="price-list">
-                  {plan.items.map((item) => (
-                    <li key={item}>✓ {item}</li>
+                  {PLAN_ITEMS.map((item) => (
+                    <li key={item}>✓ {t(`pricing.${plan.key}.${item}`)}</li>
                   ))}
                 </ul>
                 <RouterLink
                   to={startTo}
                   className={`btn ${plan.featured ? 'btn-primary' : 'btn-ghost'}`}
                 >
-                  {plan.cta}
+                  {t(`pricing.${plan.key}.cta`)}
                 </RouterLink>
               </div>
             ))}
@@ -426,18 +337,15 @@ const HomePage = () => {
         <div className="wrap">
           <div className="cta-band reveal">
             <div>
-              <h2>Trusted at every transaction.</h2>
-              <p>
-                Set up your first branch today — most shops are live and selling by the end
-                of the day.
-              </p>
+              <h2>{t('cta.title')}</h2>
+              <p>{t('cta.lead')}</p>
             </div>
             <div className="cta-actions">
               <RouterLink to={startTo} className="btn btn-primary">
-                Start free trial
+                {t('hero.startTrial')}
               </RouterLink>
               <RouterLink to={loginTo} className="btn btn-ghost">
-                Book a demo
+                {t('hero.bookDemo')}
               </RouterLink>
             </div>
           </div>
@@ -449,32 +357,29 @@ const HomePage = () => {
           <div className="foot-grid">
             <div className="foot-brand">
               <Brand />
-              <p>
-                Point-of-sale software for retail shops that run on trust — one till or a
-                hundred.
-              </p>
+              <p>{t('footer.tagline')}</p>
             </div>
             <div className="foot-col">
-              <h4>Product</h4>
-              <a href="#features">Features</a>
-              <a href="#pricing">Pricing</a>
-              <a href="#how">How it works</a>
+              <h4>{t('footer.product')}</h4>
+              <a href="#features">{t('nav.features')}</a>
+              <a href="#pricing">{t('nav.pricing')}</a>
+              <a href="#how">{t('nav.how')}</a>
             </div>
             <div className="foot-col">
-              <h4>Company</h4>
-              <a href="#contact">About</a>
-              <a href="#contact">Careers</a>
-              <a href="#contact">Contact</a>
+              <h4>{t('footer.company')}</h4>
+              <a href="#contact">{t('footer.about')}</a>
+              <a href="#contact">{t('footer.careers')}</a>
+              <a href="#contact">{t('footer.contact')}</a>
             </div>
             <div className="foot-col">
-              <h4>Support</h4>
-              <RouterLink to={loginTo}>Help center</RouterLink>
-              <a href="#contact">Status</a>
-              <a href="#contact">Privacy</a>
+              <h4>{t('footer.support')}</h4>
+              <RouterLink to={loginTo}>{t('footer.help')}</RouterLink>
+              <a href="#contact">{t('footer.status')}</a>
+              <a href="#contact">{t('footer.privacy')}</a>
             </div>
           </div>
           <div className="foot-bottom">
-            <p>© 2026 Popy. All rights reserved.</p>
+            <p>{t('footer.rights')}</p>
             <div className="foot-social">
               <a href="#contact" aria-label="Facebook">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
