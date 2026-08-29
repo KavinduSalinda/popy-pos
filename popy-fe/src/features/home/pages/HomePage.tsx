@@ -6,6 +6,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { ROUTES } from '@/constants';
 import { LOGO_SRC } from '../brand';
 import './HomePage.css';
+import { GravityStarsBackground } from '@/components/animate-ui/components/backgrounds/gravity-stars';
+
 
 const NAV_LINKS = [
   { key: 'features', href: '#features' },
@@ -136,7 +138,21 @@ const HomePage = () => {
       </header>
 
       <section className="hero relative" id="top">
-        <div className="wrap hero-grid relative z-10 from-primary to-primary-dark opacity-90">
+        <GravityStarsBackground 
+          className="hero-stars absolute inset-0 flex items-center justify-center rounded-none pointer-events-none"
+          starsCount={75}
+          starsSize={2}
+          starsOpacity={0.75}
+          glowIntensity={15}
+          glowAnimation="ease"
+          movementSpeed={0.3}
+          mouseInfluence={100}
+          mouseGravity="attract"
+          gravityStrength={75}
+          starsInteraction={false}
+          starsInteractionType="bounce"
+        />
+        <div className="wrap hero-grid relative z-10">
           <div>
             <div className="eyebrow">
               <span className="eyebrow-dot" />
