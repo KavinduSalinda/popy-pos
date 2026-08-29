@@ -6,3 +6,4 @@ export * from './PageHeader';
 export * from './PermissionGuard';
 export * from './ErrorBoundary';
 export * from './ErrorPage';
+export * from './LanguageSwitcher';
