@@ -5,6 +5,7 @@ import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 import { useAuth } from '@/hooks/useAuth';
 import { ROUTES } from '@/constants';
 import { LOGO_SRC } from '../brand';
+import { TestimonialCarousel } from '../components/TestimonialCarousel';
 import './HomePage.css';
 import { GravityStarsBackground } from '@/components/animate-ui/components/backgrounds/gravity-stars';
 
@@ -54,6 +55,9 @@ const TESTIMONIALS = [
   { key: 'one', initials: 'NR', name: 'Nadeesha R.' },
   { key: 'two', initials: 'SP', name: 'Sanjaya P.' },
   { key: 'three', initials: 'TW', name: 'Thilini W.' },
+  { key: 'four', initials: 'IM', name: 'Ishara M.' },
+  { key: 'five', initials: 'KD', name: 'Kasun D.' },
+  { key: 'six', initials: 'AF', name: 'Amali F.' },
 ] as const;
 
 const PLANS = [
@@ -292,20 +296,7 @@ const HomePage = () => {
             </div>
             <h2>{t('testimonials.title')}</h2>
           </div>
-          <div className="testi-grid reveal">
-            {TESTIMONIALS.map((item) => (
-              <div className="testi" key={item.key}>
-                <p className="testi-quote">{t(`testimonials.${item.key}.quote`)}</p>
-                <div className="testi-who">
-                  <div className="testi-avatar">{item.initials}</div>
-                  <div>
-                    <div className="testi-name">{item.name}</div>
-                    <div className="testi-role">{t(`testimonials.${item.key}.role`)}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <TestimonialCarousel items={TESTIMONIALS} />
         </div>
       </section>
 

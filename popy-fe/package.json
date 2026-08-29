@@ -37,6 +37,7 @@
     "clsx": "^2.1.1",
     "dayjs": "^1.11.18",
     "dexie": "^4.4.4",
+    "embla-carousel-react": "^8.6.0",
     "i18next": "^26.4.0",
     "jsbarcode": "^3.12.3",
     "lodash": "^4.17.21",

@@ -90,7 +90,21 @@
     "three": {
       "quote": "Support actually picks up. That alone was worth the switch from our old system.",
       "role": "Owner, Fresh Corner"
-    }
+    },
+    "four": {
+      "quote": "Cashiers picked it up in an afternoon. We didn't need a trainer.",
+      "role": "Owner, Galle Super Mart"
+    },
+    "five": {
+      "quote": "We finally see which branch is actually making money, day by day.",
+      "role": "Manager, Negombo Daily Mart"
+    },
+    "six": {
+      "quote": "Offline mode saved us during a power cut. Sales still went through.",
+      "role": "Owner, Jaffna Fresh Mart"
+    },
+    "prev": "Previous testimonials",
+    "next": "Next testimonials"
   },
   "pricing": {
     "eyebrow": "Pricing",
