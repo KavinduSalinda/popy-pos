@@ -1,668 +1,504 @@
-import { useState } from 'react';
-import {
-  AppBar,
-  Box,
-  Button,
-  Container,
-  Drawer,
-  IconButton,
-  Stack,
-  ThemeProvider,
-  Toolbar,
-  Typography,
-} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import CloseIcon from '@mui/icons-material/Close';
-import PointOfSale from '@mui/icons-material/PointOfSale';
-import Inventory2 from '@mui/icons-material/Inventory2';
-import Warehouse from '@mui/icons-material/Warehouse';
-import ShoppingCart from '@mui/icons-material/ShoppingCart';
-import Storefront from '@mui/icons-material/Storefront';
-import CloudOff from '@mui/icons-material/CloudOff';
-import Assessment from '@mui/icons-material/Assessment';
-import Groups from '@mui/icons-material/Groups';
-import QrCodeScanner from '@mui/icons-material/QrCodeScanner';
-import Payments from '@mui/icons-material/Payments';
-import Sync from '@mui/icons-material/Sync';
-import ArrowForward from '@mui/icons-material/ArrowForward';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { ROUTES } from '@/constants';
-import { LOGO_SRC, POPY, POPY_ACCENTS, popyPublicTheme } from '../brand';
+import { LOGO_SRC } from '../brand';
+import './HomePage.css';
 
 const NAV_LINKS = [
-  { label: 'Product', href: '#product' },
   { label: 'Features', href: '#features' },
-  { label: 'How it works', href: '#how-it-works' },
+  { label: 'Pricing', href: '#pricing' },
+  { label: 'How it works', href: '#how' },
+  { label: 'Contact', href: '#contact' },
 ];
 
 const FEATURES = [
   {
-    title: 'Point of Sale',
-    body: 'Scan barcodes, build a cart, take cash, card, mobile or credit, and print a receipt.',
-    icon: PointOfSale,
+    ln: 'LN 01 — INVENTORY',
+    title: 'Live inventory sync',
+    body: 'Stock updates the instant a sale rings up — across every register and every branch.',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M21 8l-9-5-9 5 9 5 9-5z" />
+        <path d="M3 8v8l9 5 9-5V8" />
+        <path d="M12 13v8" />
+      </svg>
+    ),
   },
   {
-    title: 'Catalog',
-    body: 'Products, categories, SKU and barcode, cost vs selling price, and reorder levels.',
-    icon: Inventory2,
+    ln: 'LN 02 — BRANCHES',
+    title: 'Multi-branch by default',
+    body: 'Run one shop or twenty from a single dashboard, with per-location pricing and stock.',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M3 9l9-7 9 7" />
+        <path d="M9 22V12h6v10" />
+        <path d="M4 22h16" />
+      </svg>
+    ),
   },
   {
-    title: 'Inventory',
-    body: 'Live stock, adjustments, and low / out-of-stock alerts before the shelf runs empty.',
-    icon: Warehouse,
+    ln: 'LN 03 — REPORTING',
+    title: 'Real-time reporting',
+    body: "Know today's revenue, margin, and top sellers before you close the till.",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M4 19V9" />
+        <path d="M12 19V5" />
+        <path d="M20 19v-7" />
+      </svg>
+    ),
   },
   {
-    title: 'Purchasing',
-    body: 'Suppliers, purchase orders, and goods receipt that put stock back on the books.',
-    icon: ShoppingCart,
-  },
-  {
-    title: 'Multi-shop',
-    body: 'Each branch keeps its own catalog, sales, and stock. Switch shops without mixing data.',
-    icon: Storefront,
-  },
-  {
-    title: 'Offline till',
-    body: 'Cache the catalog, take sales without internet, then sync when the line comes back.',
-    icon: CloudOff,
-  },
-  {
-    title: 'Reports',
-    body: 'Today, this month, profit, trends, and top products — the same numbers the dashboard uses.',
-    icon: Assessment,
-  },
-  {
-    title: 'Roles that fit the floor',
-    body: 'Super Admin, Manager, Cashier, and Inventory Officer each see only what they need.',
-    icon: Groups,
+    ln: 'LN 04 — PAYMENTS',
+    title: 'Secure payments',
+    body: 'Card, cash, and QR — reconciled automatically, with every transaction logged.',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <rect x="2" y="5" width="20" height="14" rx="2" />
+        <path d="M2 10h20" />
+      </svg>
+    ),
   },
 ];
 
 const STEPS = [
   {
-    title: 'Scan',
-    body: 'Barcode, search, or tap a product into the cart. Walk-in or named customer.',
-    icon: QrCodeScanner,
+    title: 'Set up your catalog',
+    body: 'Import your products, prices, and stock — by spreadsheet or barcode scan.',
   },
   {
-    title: 'Pay',
-    body: 'Cash with change, card, mobile, or credit. Optional receipt email or SMS.',
-    icon: Payments,
+    title: 'Start selling',
+    body: 'Ring up sales from any till or device, online or offline.',
   },
   {
-    title: 'Stock updates',
-    body: 'Quantity drops at checkout. Purchases and returns write the same audit trail.',
-    icon: Sync,
+    title: 'Track every branch',
+    body: 'Watch sales, stock, and margin roll up in one live dashboard.',
   },
 ];
 
-const ROLES = [
-  { title: 'Super Admin', body: 'Shops, staff, settings, full operations.' },
-  { title: 'Manager', body: 'Sales, stock, purchases, and reports — no system admin.' },
-  { title: 'Cashier', body: 'POS, customers, and sales history at the counter.' },
-  { title: 'Inventory Officer', body: 'Catalog, stock, GRN, and returns. No till.' },
+const TESTIMONIALS = [
+  {
+    quote:
+      'Stock across our two branches finally matches. We stopped over-ordering within the first month.',
+    initials: 'NR',
+    name: 'Nadeesha R.',
+    role: 'Owner, Kandy General Store',
+  },
+  {
+    quote:
+      "Reporting used to take a spreadsheet and an hour. Now it's already there when I open the shop.",
+    initials: 'SP',
+    name: 'Sanjaya P.',
+    role: 'Manager, Popy Market',
+  },
+  {
+    quote: 'Support actually picks up. That alone was worth the switch from our old system.',
+    initials: 'TW',
+    name: 'Thilini W.',
+    role: 'Owner, Fresh Corner',
+  },
 ];
 
-const KPIS = [
-  { label: "Today's sales", value: 'Rs. 48,260', hint: '28 Aug' },
-  { label: 'Monthly sales', value: 'Rs. 1.12M', hint: 'August' },
-  { label: 'Low stock', value: '17', hint: 'Reorder now' },
-  { label: 'Out of stock', value: '2', hint: 'Cake slice, rice' },
+const PLANS = [
+  {
+    name: 'Starter',
+    amount: 'LKR 4,900',
+    period: '/mo',
+    desc: 'For a single till, single location.',
+    featured: false,
+    items: [
+      '1 branch, 2 registers',
+      'Inventory tracking',
+      'Daily sales reports',
+      'Email support',
+    ],
+    cta: 'Choose Starter',
+  },
+  {
+    name: 'Business',
+    amount: 'LKR 12,900',
+    period: '/mo',
+    desc: 'For growing multi-branch shops.',
+    featured: true,
+    items: [
+      'Up to 5 branches',
+      'Real-time reporting',
+      'Staff roles & permissions',
+      'Priority support',
+    ],
+    cta: 'Choose Business',
+  },
+  {
+    name: 'Enterprise',
+    amount: 'Custom',
+    period: '',
+    desc: 'For chains with custom needs.',
+    featured: false,
+    items: [
+      'Unlimited branches',
+      'Dedicated account manager',
+      'Custom integrations',
+      'SLA-backed uptime',
+    ],
+    cta: 'Talk to sales',
+  },
 ];
 
-const LogoMark = ({ height = 44 }: { height?: number }) => (
-  <Box
-    component="img"
-    src={LOGO_SRC}
-    alt="Popy"
-    sx={{
-      height,
-      width: height,
-      objectFit: 'cover',
-      borderRadius: 1.5,
-      display: 'block',
-    }}
-  />
-);
+const RECEIPT_LINES = [
+  { qty: '1x', name: 'Coca-Cola 1.5L', price: '420.00' },
+  { qty: '2x', name: 'Anchor Milk Powder', price: '2,160.00' },
+  { qty: '1x', name: 'Keeri Samba Rice 5kg', price: '2,400.00' },
+  { qty: '3x', name: 'Signal Toothpaste', price: '1,140.00' },
+];
 
-const BrandLockup = ({ compact = false }: { compact?: boolean }) => (
-  <Stack direction="row" alignItems="center" spacing={1.25}>
-    <LogoMark height={compact ? 36 : 44} />
-    <Box>
-      <Typography
-        sx={{
-          fontWeight: 800,
-          letterSpacing: '0.28em',
-          fontSize: compact ? 14 : 16,
-          lineHeight: 1.1,
-          color: POPY.white,
-        }}
-      >
-        POPY
-      </Typography>
-      {!compact && (
-        <Typography
-          sx={{
-            fontSize: 9,
-            letterSpacing: '0.22em',
-            color: POPY.steel,
-            mt: 0.25,
-          }}
-        >
-          BUILT TO BE TRUSTED
-        </Typography>
-      )}
-    </Box>
-  </Stack>
-);
-
-const AccentBar = () => (
-  <Box sx={{ display: 'flex', height: 4 }}>
-    {POPY_ACCENTS.map((color) => (
-      <Box key={color} sx={{ flex: 1, bgcolor: color }} />
-    ))}
-  </Box>
-);
-
-const HomeNav = () => {
-  const { isAuthenticated } = useAuth();
-  const [open, setOpen] = useState(false);
-  const primaryTo = isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN;
-  const primaryLabel = isAuthenticated ? 'Go to dashboard' : 'Sign in';
-
-  const links = (
-    <>
-      {NAV_LINKS.map((link) => (
-        <Button
-          key={link.href}
-          href={link.href}
-          color="inherit"
-          sx={{ color: POPY.steel, '&:hover': { color: POPY.white } }}
-        >
-          {link.label}
-        </Button>
-      ))}
-    </>
-  );
-
-  return (
-    <AppBar
-      position="sticky"
-      elevation={0}
-      sx={{
-        bgcolor: 'rgba(14, 25, 43, 0.92)',
-        backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
-      <AccentBar />
-      <Container maxWidth="lg">
-        <Toolbar disableGutters sx={{ minHeight: { xs: 64, md: 72 }, gap: 2 }}>
-          <Box
-            component="a"
-            href="#top"
-            sx={{ display: 'flex', alignItems: 'center', mr: 'auto' }}
-          >
-            <BrandLockup />
-          </Box>
-          <Stack
-            direction="row"
-            spacing={0.5}
-            sx={{ display: { xs: 'none', md: 'flex' } }}
-          >
-            {links}
-          </Stack>
-          <Button
-            component={RouterLink}
-            to={primaryTo}
-            variant="contained"
-            sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
-          >
-            {primaryLabel}
-          </Button>
-          <IconButton
-            onClick={() => setOpen(true)}
-            sx={{ display: { md: 'none' }, color: POPY.white }}
-            aria-label="Open menu"
-          >
-            <MenuIcon />
-          </IconButton>
-        </Toolbar>
-      </Container>
-      <Drawer
-        anchor="right"
-        open={open}
-        onClose={() => setOpen(false)}
-        PaperProps={{ sx: { width: 280, bgcolor: POPY.navy, p: 2 } }}
-      >
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-          <BrandLockup compact />
-          <IconButton onClick={() => setOpen(false)} sx={{ color: POPY.white }}>
-            <CloseIcon />
-          </IconButton>
-        </Stack>
-        <Stack spacing={1} onClick={() => setOpen(false)}>
-          {NAV_LINKS.map((link) => (
-            <Button key={link.href} href={link.href} sx={{ justifyContent: 'flex-start' }}>
-              {link.label}
-            </Button>
-          ))}
-          <Button component={RouterLink} to={primaryTo} variant="contained">
-            {primaryLabel}
-          </Button>
-        </Stack>
-      </Drawer>
-    </AppBar>
-  );
-};
-
-const HeroPreview = () => (
-  <Box
-    sx={{
-      bgcolor: POPY.navyMid,
-      border: '1px solid',
-      borderColor: 'divider',
-      borderRadius: 3,
-      overflow: 'hidden',
-      boxShadow: '0 24px 80px rgba(0,0,0,0.35)',
-    }}
-  >
-    <Stack
-      direction="row"
-      alignItems="center"
-      spacing={1}
-      sx={{ px: 2, py: 1.25, borderBottom: '1px solid', borderColor: 'divider' }}
-    >
-      {POPY_ACCENTS.map((color) => (
-        <Box
-          key={color}
-          sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: color }}
-        />
-      ))}
-      <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-        Popy Super Market · MAIN
-      </Typography>
-    </Stack>
-    <Box sx={{ p: 2 }}>
-      <Typography variant="overline" sx={{ color: POPY.steel, letterSpacing: 1.6 }}>
-        Dashboard
-      </Typography>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr 1fr', sm: '1fr 1fr' },
-          gap: 1.25,
-          mt: 1,
-        }}
-      >
-        {KPIS.map((kpi, i) => (
-          <Box
-            key={kpi.label}
-            sx={{
-              bgcolor: POPY.navy,
-              borderRadius: 2,
-              p: 1.5,
-              borderLeft: '3px solid',
-              borderColor: POPY_ACCENTS[i],
-            }}
-          >
-            <Typography variant="caption" color="text.secondary">
-              {kpi.label}
-            </Typography>
-            <Typography fontWeight={800} sx={{ fontSize: { xs: 16, sm: 18 } }}>
-              {kpi.value}
-            </Typography>
-            <Typography variant="caption" sx={{ color: POPY_ACCENTS[i] }}>
-              {kpi.hint}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-      <Box sx={{ mt: 2, height: 72, display: 'flex', alignItems: 'flex-end', gap: 0.75, px: 0.5 }}>
-        {[40, 55, 48, 62, 70, 58, 82].map((h, i) => (
-          <Box
-            key={i}
-            sx={{
-              flex: 1,
-              height: `${h}%`,
-              borderRadius: 1,
-              bgcolor: i === 6 ? POPY.orange : POPY.teal,
-              opacity: i === 6 ? 1 : 0.45,
-            }}
-          />
-        ))}
-      </Box>
-      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-        Daily sales · last 7 days
-      </Typography>
-    </Box>
-  </Box>
+const Brand = () => (
+  <div className="brand">
+    <span className="brand-mark">
+      <img src={LOGO_SRC} alt="" />
+    </span>
+    Popy
+  </div>
 );
 
 const HomePage = () => {
   const { isAuthenticated } = useAuth();
-  const ctaTo = isAuthenticated ? ROUTES.POS : ROUTES.LOGIN;
-  const ctaLabel = isAuthenticated ? 'Open POS' : 'Open the till';
+  const [menuOpen, setMenuOpen] = useState(false);
+  const startTo = isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN;
+  const startLabel = isAuthenticated ? 'Go to dashboard' : 'Get started';
+  const loginLabel = isAuthenticated ? 'Open POS' : 'Log in';
+  const loginTo = isAuthenticated ? ROUTES.POS : ROUTES.LOGIN;
+
+  useEffect(() => {
+    const nodes = document.querySelectorAll('.popy-home .reveal');
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add('in');
+        });
+      },
+      { threshold: 0.12 },
+    );
+    nodes.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
 
   return (
-    <ThemeProvider theme={popyPublicTheme}>
-      <Box
-        id="top"
-        sx={{
-          minHeight: '100vh',
-          bgcolor: POPY.navy,
-          color: POPY.white,
-          overflowX: 'hidden',
-        }}
-      >
-        <HomeNav />
-
-        <Box
-          component="section"
-          sx={{
-            position: 'relative',
-            py: { xs: 7, md: 12 },
-            background: `radial-gradient(ellipse at 80% 0%, rgba(254,126,35,0.12), transparent 50%),
-              radial-gradient(ellipse at 10% 80%, rgba(48,185,167,0.10), transparent 45%)`,
-          }}
-        >
-          <Container maxWidth="lg">
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', md: '1.05fr 0.95fr' },
-                gap: { xs: 6, md: 8 },
-                alignItems: 'center',
-              }}
+    <div className="popy-home">
+      <header>
+        <nav className="wrap">
+          <a href="#top" aria-label="Popy home">
+            <Brand />
+          </a>
+          <div className={`nav-links${menuOpen ? ' open' : ''}`}>
+            {NAV_LINKS.map((link) => (
+              <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)}>
+                {link.label}
+              </a>
+            ))}
+          </div>
+          <div className="nav-cta">
+            <RouterLink to={loginTo} className="btn btn-ghost btn-sm">
+              {loginLabel}
+            </RouterLink>
+            <RouterLink to={startTo} className="btn btn-primary btn-sm">
+              {startLabel}
+            </RouterLink>
+            <button
+              type="button"
+              className="nav-toggle"
+              aria-label="Open menu"
+              onClick={() => setMenuOpen((open) => !open)}
             >
-              <Box>
-                <Typography
-                  sx={{
-                    color: POPY.steel,
-                    letterSpacing: '0.28em',
-                    fontSize: 12,
-                    fontWeight: 600,
-                    mb: 2,
-                  }}
-                >
-                  BUILT TO BE TRUSTED
-                </Typography>
-                <Typography
-                  component="h1"
-                  sx={{
-                    fontSize: { xs: 36, sm: 48, md: 56 },
-                    fontWeight: 800,
-                    lineHeight: 1.08,
-                    mb: 2,
-                  }}
-                >
-                  Point of sale for shops that need the numbers to match the shelf.
-                </Typography>
-                <Typography
-                  sx={{ color: POPY.steel, fontSize: { xs: 16, md: 18 }, maxWidth: 520, mb: 4 }}
-                >
-                  Popy POS runs the counter, the stockroom, and the daily report in one place —
-                  barcode checkout, purchases, multi-shop, and offline till included.
-                </Typography>
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-                  <Button
-                    component={RouterLink}
-                    to={ctaTo}
-                    variant="contained"
-                    size="large"
-                    endIcon={<ArrowForward />}
-                  >
-                    {ctaLabel}
-                  </Button>
-                  <Button href="#features" variant="outlined" size="large">
-                    See what it does
-                  </Button>
-                </Stack>
-              </Box>
-              <HeroPreview />
-            </Box>
-          </Container>
-        </Box>
+              {menuOpen ? '✕' : '☰'}
+            </button>
+          </div>
+        </nav>
+      </header>
 
-        <Box
-          id="product"
-          sx={{ borderTop: '1px solid', borderBottom: '1px solid', borderColor: 'divider', py: 3 }}
-        >
-          <Container maxWidth="lg">
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(4, 1fr)' },
-                gap: 3,
-              }}
-            >
-              {[
-                { title: 'Multi-shop', body: 'Isolated branches, one login.' },
-                { title: 'Barcode till', body: 'Scan, cart, receipt.' },
-                { title: 'Stock alerts', body: 'Low and out, in time.' },
-                { title: 'Offline POS', body: 'Sell, then sync.' },
-              ].map((item, i) => (
-                <Stack key={item.title} spacing={0.5}>
-                  <Typography fontWeight={700} sx={{ color: POPY_ACCENTS[i] }}>
-                    {item.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {item.body}
-                  </Typography>
-                </Stack>
-              ))}
-            </Box>
-          </Container>
-        </Box>
+      <section className="hero" id="top">
+        <div className="wrap hero-grid">
+          <div>
+            <div className="eyebrow">
+              <span className="eyebrow-dot" />
+              Point of sale, built for retail
+            </div>
+            <h1>
+              Every sale, <em>accounted for.</em>
+            </h1>
+            <p className="lead">
+              Popy runs your checkout, tracks your stock across every branch, and closes
+              your books — reliably, down to every transaction.
+            </p>
+            <div className="hero-actions">
+              <RouterLink to={startTo} className="btn btn-primary">
+                Start free trial
+              </RouterLink>
+              <RouterLink to={loginTo} className="btn btn-ghost">
+                Book a demo
+              </RouterLink>
+            </div>
+            <div className="hero-note">
+              <span>
+                <span className="check">✓</span> No card required
+              </span>
+              <span>
+                <span className="check">✓</span> Setup in under a day
+              </span>
+              <span>
+                <span className="check">✓</span> Multi-branch ready
+              </span>
+            </div>
+          </div>
 
-        <Box id="features" component="section" sx={{ py: { xs: 8, md: 12 } }}>
-          <Container maxWidth="lg">
-            <Typography variant="overline" sx={{ color: POPY.orange, letterSpacing: 2 }}>
+          <div className="receipt-stage">
+            <div className="receipt-shadow" />
+            <div className="receipt">
+              <div className="receipt-head">
+                <div className="rmark">
+                  <img src={LOGO_SRC} alt="" />
+                </div>
+                <div className="rname">POPY MARKET — MAIN</div>
+                <div className="rsub">TXN #48213 · 09:41 AM</div>
+              </div>
+              <div className="receipt-divider" />
+              <div className="rlines">
+                {RECEIPT_LINES.map((line) => (
+                  <div className="rline" key={line.name}>
+                    <span>
+                      <span className="rq">{line.qty}</span>
+                      {line.name}
+                    </span>
+                    <span>{line.price}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="receipt-divider" />
+              <div className="rtotal">
+                <span>TOTAL</span>
+                <span>LKR 6,120.00</span>
+              </div>
+              <div className="rbarcode" />
+              <div className="rstamp">APPROVED</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="trust">
+        <div className="wrap trust-grid">
+          <div>
+            <div className="trust-num">500+</div>
+            <div className="trust-label">Businesses running on Popy</div>
+          </div>
+          <div>
+            <div className="trust-num">99.9%</div>
+            <div className="trust-label">Uptime, every branch</div>
+          </div>
+          <div>
+            <div className="trust-num">2.1M</div>
+            <div className="trust-label">Transactions processed / mo</div>
+          </div>
+          <div>
+            <div className="trust-num">24/7</div>
+            <div className="trust-label">Human support</div>
+          </div>
+        </div>
+      </div>
+
+      <section id="features">
+        <div className="wrap">
+          <div className="section-head reveal">
+            <div className="eyebrow">
+              <span className="eyebrow-dot" />
               Features
-            </Typography>
-            <Typography variant="h2" sx={{ fontSize: { xs: 28, md: 40 }, mb: 1, maxWidth: 640 }}>
-              Everything the floor and the back office share.
-            </Typography>
-            <Typography color="text.secondary" sx={{ mb: 5, maxWidth: 560 }}>
-              The same catalog the cashier scans is the stock the inventory officer receives.
-            </Typography>
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: 'repeat(4, 1fr)' },
-                gap: 2,
-              }}
-            >
-              {FEATURES.map((feature, i) => {
-                const Icon = feature.icon;
-                const color = POPY_ACCENTS[i % POPY_ACCENTS.length];
-                return (
-                  <Box
-                    key={feature.title}
-                    sx={{
-                      p: 2.5,
-                      bgcolor: POPY.navyMid,
-                      borderRadius: 3,
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      height: '100%',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 2,
-                        bgcolor: `${color}22`,
-                        color,
-                        display: 'grid',
-                        placeItems: 'center',
-                        mb: 1.5,
-                      }}
-                    >
-                      <Icon fontSize="small" />
-                    </Box>
-                    <Typography fontWeight={700} mb={0.75}>
-                      {feature.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {feature.body}
-                    </Typography>
-                  </Box>
-                );
-              })}
-            </Box>
-          </Container>
-        </Box>
+            </div>
+            <h2>Everything a checkout counter needs to run itself.</h2>
+            <p>
+              Four systems working from one shared ledger — so stock, sales, and reporting
+              never drift out of sync.
+            </p>
+          </div>
+          <div className="feat-grid reveal">
+            {FEATURES.map((feature) => (
+              <div className="feat-card" key={feature.ln}>
+                <div className="feat-ln">{feature.ln}</div>
+                <div className="feat-icon">{feature.icon}</div>
+                <h3>{feature.title}</h3>
+                <p>{feature.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <Box id="how-it-works" component="section" sx={{ py: { xs: 8, md: 10 }, bgcolor: POPY.navyMid }}>
-          <Container maxWidth="lg">
-            <Typography variant="overline" sx={{ color: POPY.teal, letterSpacing: 2 }}>
-              How it works
-            </Typography>
-            <Typography variant="h2" sx={{ fontSize: { xs: 28, md: 40 }, mb: 5 }}>
-              Scan. Pay. Stock moves with the sale.
-            </Typography>
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
-                gap: 3,
-              }}
-            >
-              {STEPS.map((step, i) => {
-                const Icon = step.icon;
-                return (
-                  <Stack key={step.title} spacing={1.5}>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Box
-                        sx={{
-                          width: 44,
-                          height: 44,
-                          borderRadius: '50%',
-                          bgcolor: POPY.navy,
-                          color: POPY_ACCENTS[i],
-                          display: 'grid',
-                          placeItems: 'center',
-                          border: '1px solid',
-                          borderColor: POPY_ACCENTS[i],
-                        }}
-                      >
-                        <Icon fontSize="small" />
-                      </Box>
-                      <Typography variant="h6">
-                        {i + 1}. {step.title}
-                      </Typography>
-                    </Stack>
-                    <Typography color="text.secondary">{step.body}</Typography>
-                  </Stack>
-                );
-              })}
-            </Box>
-          </Container>
-        </Box>
+      <section id="how" className="band">
+        <div className="wrap">
+          <div className="section-head reveal">
+            <div className="eyebrow">
+              <span className="eyebrow-dot" />
+              Process
+            </div>
+            <h2>Live in three steps.</h2>
+            <p>No IT team required — most shops are ringing up sales the same day.</p>
+          </div>
+          <div className="steps reveal">
+            {STEPS.map((step, index) => (
+              <div className="step" key={step.title}>
+                <div className="step-num">0{index + 1}</div>
+                <h3>{step.title}</h3>
+                <p>{step.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <Box component="section" sx={{ py: { xs: 8, md: 12 } }}>
-          <Container maxWidth="lg">
-            <Typography variant="overline" sx={{ color: POPY.green, letterSpacing: 2 }}>
-              Built for the whole shop
-            </Typography>
-            <Typography variant="h2" sx={{ fontSize: { xs: 28, md: 40 }, mb: 5 }}>
-              Four roles. One system.
-            </Typography>
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' },
-                gap: 2,
-              }}
-            >
-              {ROLES.map((role, i) => (
-                <Box
-                  key={role.title}
-                  sx={{
-                    p: 2.5,
-                    borderRadius: 3,
-                    bgcolor: POPY.navyMid,
-                    borderTop: '3px solid',
-                    borderColor: POPY_ACCENTS[i],
-                  }}
-                >
-                  <Typography fontWeight={700} mb={0.75}>
-                    {role.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {role.body}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-          </Container>
-        </Box>
+      <section>
+        <div className="wrap">
+          <div className="section-head reveal">
+            <div className="eyebrow">
+              <span className="eyebrow-dot" />
+              Trusted by owners
+            </div>
+            <h2>What shop owners say after switching.</h2>
+          </div>
+          <div className="testi-grid reveal">
+            {TESTIMONIALS.map((item) => (
+              <div className="testi" key={item.name}>
+                <p className="testi-quote">{item.quote}</p>
+                <div className="testi-who">
+                  <div className="testi-avatar">{item.initials}</div>
+                  <div>
+                    <div className="testi-name">{item.name}</div>
+                    <div className="testi-role">{item.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <Box sx={{ px: { xs: 2, md: 0 }, pb: { xs: 8, md: 12 } }}>
-          <Container maxWidth="lg">
-            <Box
-              sx={{
-                borderRadius: 4,
-                p: { xs: 4, md: 6 },
-                background: `linear-gradient(135deg, ${POPY.navyLift} 0%, ${POPY.navy} 55%, ${POPY.navyMid} 100%)`,
-                border: '1px solid',
-                borderColor: 'divider',
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', md: '1.4fr auto' },
-                gap: 3,
-                alignItems: 'center',
-              }}
-            >
-              <Box>
-                <Typography variant="h2" sx={{ fontSize: { xs: 26, md: 36 }, mb: 1 }}>
-                  Run the counter with confidence.
-                </Typography>
-                <Typography color="text.secondary">
-                  Sign in to Popy POS — the till, the stock, and the day&apos;s numbers on one screen.
-                </Typography>
-              </Box>
-              <Button
-                component={RouterLink}
-                to={ctaTo}
-                variant="contained"
-                size="large"
-                endIcon={<ArrowForward />}
-                sx={{ justifySelf: { md: 'end' } }}
+      <section id="pricing" className="band">
+        <div className="wrap">
+          <div className="section-head reveal">
+            <div className="eyebrow">
+              <span className="eyebrow-dot" />
+              Pricing
+            </div>
+            <h2>Straightforward plans, no surprise fees.</h2>
+            <p>Every plan includes unlimited transactions and free support.</p>
+          </div>
+          <div className="price-grid reveal">
+            {PLANS.map((plan) => (
+              <div
+                className={`price-card${plan.featured ? ' featured' : ''}`}
+                key={plan.name}
               >
-                {ctaLabel}
-              </Button>
-            </Box>
-          </Container>
-        </Box>
+                {plan.featured ? <div className="price-tag">Most popular</div> : null}
+                <div className="price-name">{plan.name}</div>
+                <div className="price-amt">
+                  {plan.amount}
+                  {plan.period ? <span>{plan.period}</span> : null}
+                </div>
+                <p className="price-desc">{plan.desc}</p>
+                <ul className="price-list">
+                  {plan.items.map((item) => (
+                    <li key={item}>✓ {item}</li>
+                  ))}
+                </ul>
+                <RouterLink
+                  to={startTo}
+                  className={`btn ${plan.featured ? 'btn-primary' : 'btn-ghost'}`}
+                >
+                  {plan.cta}
+                </RouterLink>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <Box
-          component="footer"
-          sx={{ borderTop: '1px solid', borderColor: 'divider', py: 4 }}
-        >
-          <Container maxWidth="lg">
-            <Stack
-              direction={{ xs: 'column', sm: 'row' }}
-              spacing={2}
-              justifyContent="space-between"
-              alignItems={{ xs: 'flex-start', sm: 'center' }}
-            >
-              <BrandLockup compact />
-              <Typography variant="body2" color="text.secondary">
-                Point of sale · inventory · purchasing · reports
-              </Typography>
-              <Button component={RouterLink} to={ROUTES.LOGIN} sx={{ color: POPY.steel }}>
-                Sign in
-              </Button>
-            </Stack>
-          </Container>
-        </Box>
-        <AccentBar />
-      </Box>
-    </ThemeProvider>
+      <section>
+        <div className="wrap">
+          <div className="cta-band reveal">
+            <div>
+              <h2>Trusted at every transaction.</h2>
+              <p>
+                Set up your first branch today — most shops are live and selling by the end
+                of the day.
+              </p>
+            </div>
+            <div className="cta-actions">
+              <RouterLink to={startTo} className="btn btn-primary">
+                Start free trial
+              </RouterLink>
+              <RouterLink to={loginTo} className="btn btn-ghost">
+                Book a demo
+              </RouterLink>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer id="contact">
+        <div className="wrap">
+          <div className="foot-grid">
+            <div className="foot-brand">
+              <Brand />
+              <p>
+                Point-of-sale software for retail shops that run on trust — one till or a
+                hundred.
+              </p>
+            </div>
+            <div className="foot-col">
+              <h4>Product</h4>
+              <a href="#features">Features</a>
+              <a href="#pricing">Pricing</a>
+              <a href="#how">How it works</a>
+            </div>
+            <div className="foot-col">
+              <h4>Company</h4>
+              <a href="#contact">About</a>
+              <a href="#contact">Careers</a>
+              <a href="#contact">Contact</a>
+            </div>
+            <div className="foot-col">
+              <h4>Support</h4>
+              <RouterLink to={loginTo}>Help center</RouterLink>
+              <a href="#contact">Status</a>
+              <a href="#contact">Privacy</a>
+            </div>
+          </div>
+          <div className="foot-bottom">
+            <p>© 2026 Popy. All rights reserved.</p>
+            <div className="foot-social">
+              <a href="#contact" aria-label="Facebook">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
+                </svg>
+              </a>
+              <a href="#contact" aria-label="Instagram">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <rect x="2" y="2" width="20" height="20" rx="5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17.5" cy="6.5" r="1" />
+                </svg>
+              </a>
+              <a href="#contact" aria-label="LinkedIn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <rect x="2" y="9" width="4" height="12" />
+                  <circle cx="4" cy="4" r="2" />
+                  <path d="M10 9v12" />
+                  <path d="M10 13a4 4 0 018 0v8" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 };
 

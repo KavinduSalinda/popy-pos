@@ -7,7 +7,6 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { ROUTES } from '@/constants';
 import { PERMISSIONS } from '@/constants/permissions';
 import { Loader } from '@/components/common/Loader';
-import { POPY } from '@/features/home/brand';
 import {
   ForbiddenPage,
   NotFoundPage,
@@ -67,7 +66,7 @@ export const AppRoutes = () => (
     <Route
       path={ROUTES.HOME}
       element={
-        <Box sx={{ minHeight: '100vh', bgcolor: POPY.navy }}>
+        <Box sx={{ minHeight: '100vh', bgcolor: '#E6F1FB' }}>
           <Suspense fallback={<Loader fullHeight />}>
             <HomePage />
           </Suspense>
