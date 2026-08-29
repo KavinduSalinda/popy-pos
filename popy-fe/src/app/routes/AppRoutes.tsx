@@ -1,15 +1,20 @@
-import { lazy } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { Box } from '@mui/material';
+import { Route, Routes } from 'react-router-dom';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { ROUTES } from '@/constants';
 import { PERMISSIONS } from '@/constants/permissions';
+import { Loader } from '@/components/common/Loader';
+import { POPY } from '@/features/home/brand';
 import {
   ForbiddenPage,
   NotFoundPage,
   ServerErrorPage,
 } from '@/components/common';
+
+const HomePage = lazy(() => import('@/features/home/pages/HomePage'));
 
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'));
 const ForgotPasswordPage = lazy(
@@ -59,6 +64,17 @@ const SettingsPage = lazy(
 
 export const AppRoutes = () => (
   <Routes>
+    <Route
+      path={ROUTES.HOME}
+      element={
+        <Box sx={{ minHeight: '100vh', bgcolor: POPY.navy }}>
+          <Suspense fallback={<Loader fullHeight />}>
+            <HomePage />
+          </Suspense>
+        </Box>
+      }
+    />
+
     <Route element={<AuthLayout />}>
       <Route path={ROUTES.LOGIN} element={<LoginPage />} />
       <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
@@ -72,7 +88,6 @@ export const AppRoutes = () => (
         </ProtectedRoute>
       }
     >
-      <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
       <Route
         path={ROUTES.DASHBOARD}
         element={
