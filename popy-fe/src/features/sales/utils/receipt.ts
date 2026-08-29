@@ -50,7 +50,7 @@ export const buildReceiptHtml = (
   const { amountPaid, change, balanceDue } = getSalePaymentSummary(sale);
   const hotline = getReceiptShopPhone(sale, shopPhone);
   const hotlineHtml = hotline
-    ? `<p>Hotline: ${escapeHtml(hotline)}</p>`
+    ? `<p class="footer">Hotline: ${escapeHtml(hotline)}</p>`
     : '';
   const itemsHtml = sale.items
     .map((item) => {
@@ -121,7 +121,7 @@ export const buildReceiptHtml = (
     ${paymentRows}
     <div class="divider"></div>
     <p class="footer">Thank you for your purchase!</p>
-    <p class="footer">Hotline: ${escapeHtml(hotline)}</p>
+    ${hotlineHtml}
   </body>
 </html>`;
 };
