@@ -43,6 +43,7 @@ export interface SaleItem {
   id: ID;
   productId: ID;
   productName: string;
+  sku?: string;
   quantity: number;
   unitPrice: number;
   total: number;
@@ -53,6 +54,8 @@ export interface Sale extends Timestamps {
   reference: string;
   customerId?: ID | null;
   customerName?: string;
+  shopName?: string;
+  shopPhone?: string;
   items: SaleItem[];
   subtotal: number;
   discount: number;

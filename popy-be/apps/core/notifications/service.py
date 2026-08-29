@@ -45,22 +45,27 @@ def notify_pos_checkout(sale, *, send_email: bool = False, send_sms: bool = Fals
         return
 
     items_summary = ", ".join(
-        f"{item.product.name} x{item.quantity}" for item in sale.items.select_related("product").all()
+        f"{item.product.name} ({item.product.sku}) x{item.quantity}"
+        for item in sale.items.select_related("product").all()
     )
+    shop_name = sale.shop.name
+    shop_phone = (sale.shop.phone or "").strip()
+    hotline_html = f"<br><strong>Hotline:</strong> {shop_phone}" if shop_phone else ""
+    hotline_text = f"\nHotline: {shop_phone}" if shop_phone else ""
     subject = f"Receipt {sale.reference}"
     html = (
         f"<p>Hi {customer.name},</p>"
-        f"<p>Thank you for your purchase at Popy POS.</p>"
+        f"<p>Thank you for your purchase at {shop_name}.</p>"
         f"<p><strong>Reference:</strong> {sale.reference}<br>"
         f"<strong>Total:</strong> {sale.total}<br>"
-        f"<strong>Items:</strong> {items_summary}</p>"
+        f"<strong>Items:</strong> {items_summary}{hotline_html}</p>"
     )
     text = (
         f"Hi {customer.name},\n\n"
         f"Thank you for your purchase.\n"
         f"Reference: {sale.reference}\n"
         f"Total: {sale.total}\n"
-        f"Items: {items_summary}"
+        f"Items: {items_summary}{hotline_text}"
     )
     sms = f"Thanks for shopping! Ref {sale.reference}, total {sale.total}."
 
