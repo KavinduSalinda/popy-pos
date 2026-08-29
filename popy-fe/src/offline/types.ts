@@ -110,6 +110,7 @@ export const buildOfflineSale = ({
       id: `${clientId}-${index}`,
       productId: item.productId,
       productName: `Product #${item.productId}`,
+      sku: undefined,
       quantity: item.quantity,
       unitPrice: Number(item.unitPrice),
       total: item.quantity * Number(item.unitPrice),

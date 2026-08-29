@@ -1,11 +1,24 @@
 import { Box, Divider, Stack, Typography } from '@mui/material';
-import { APP_CONFIG } from '@/constants';
+import { useAppSelector } from '@/app/hooks';
 import { formatCurrency, formatDateTime } from '@/utils';
-import { formatPaymentMethod, getSalePaymentSummary } from '../utils/receipt';
+import {
+  formatPaymentMethod,
+  getReceiptShopName,
+  getReceiptShopPhone,
+  getSalePaymentSummary,
+} from '../utils/receipt';
 import type { Sale } from '../types';
 
 export const ReceiptPreview = ({ sale }: { sale: Sale }) => {
   const { amountPaid, change, balanceDue } = getSalePaymentSummary(sale);
+  const currentShop = useAppSelector((state) => {
+    const shopId = state.auth.currentShopId;
+    return state.auth.user?.shops?.find(
+      (shop) => String(shop.id) === String(shopId),
+    );
+  });
+  const shopName = getReceiptShopName(sale, currentShop?.name);
+  const shopPhone = getReceiptShopPhone(sale, currentShop?.phone);
 
   return (
     <Box
@@ -22,25 +35,33 @@ export const ReceiptPreview = ({ sale }: { sale: Sale }) => {
     >
       <Stack alignItems="center" spacing={0.5} mb={1}>
         <Typography variant="subtitle1" fontWeight={800}>
-          {APP_CONFIG.name}
+          {shopName}
         </Typography>
-        <Typography variant="caption">Sales Receipt</Typography>
         <Typography variant="caption">{sale.reference}</Typography>
-        <Typography variant="caption">
-          {formatDateTime(sale.createdAt)}
-        </Typography>
+          <Typography variant="caption">
+            {formatDateTime(sale.createdAt)}
+          </Typography>
       </Stack>
       <Divider sx={{ my: 1 }} />
-      <Stack spacing={0.5}>
+      <Stack spacing={1}>
         {sale.items.map((item) => (
           <Stack
             key={String(item.id)}
             direction="row"
             justifyContent="space-between"
+            alignItems="flex-start"
+            gap={1}
           >
-            <Typography variant="caption">
-              {item.quantity} × {item.productName}
-            </Typography>
+            <Box>
+              <Typography variant="caption" display="block">
+                {item.quantity} × {item.productName}
+              </Typography>
+              {item.sku ? (
+                <Typography variant="caption" color="text.secondary" display="block">
+                  {item.sku}
+                </Typography>
+              ) : null}
+            </Box>
             <Typography variant="caption">
               {formatCurrency(item.total)}
             </Typography>
@@ -71,6 +92,11 @@ export const ReceiptPreview = ({ sale }: { sale: Sale }) => {
       <Typography variant="caption" display="block" textAlign="center">
         Thank you for your purchase!
       </Typography>
+      {shopPhone ? (
+        <Typography variant="caption" display="block" textAlign="center">
+          Hotline: {shopPhone}
+        </Typography>
+      ) : null}
     </Box>
   );
 };

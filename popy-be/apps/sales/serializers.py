@@ -10,16 +10,19 @@ from apps.sales.models import Sale, SaleItem
 class SaleItemSerializer(CamelCaseModelSerializer):
     product_id = serializers.IntegerField(read_only=True)
     product_name = serializers.CharField(source="product.name", read_only=True)
+    sku = serializers.CharField(source="product.sku", read_only=True)
 
     class Meta:
         model = SaleItem
-        fields = ["id", "product_id", "product_name", "quantity", "unit_price", "total"]
+        fields = ["id", "product_id", "product_name", "sku", "quantity", "unit_price", "total"]
 
 
 class SaleSerializer(CamelCaseModelSerializer):
     customer_id = serializers.IntegerField(read_only=True, allow_null=True)
     customer_name = serializers.SerializerMethodField()
     cashier_name = serializers.CharField(source="cashier.name", read_only=True)
+    shop_name = serializers.CharField(source="shop.name", read_only=True)
+    shop_phone = serializers.CharField(source="shop.phone", read_only=True)
     items = SaleItemSerializer(many=True, read_only=True)
 
     class Meta:
@@ -29,6 +32,8 @@ class SaleSerializer(CamelCaseModelSerializer):
             "reference",
             "customer_id",
             "customer_name",
+            "shop_name",
+            "shop_phone",
             "items",
             "subtotal",
             "discount",

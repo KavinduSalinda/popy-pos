@@ -40,6 +40,11 @@ export const SaleDetailsPage = () => {
                 <Grid container key={String(item.id)} sx={{ py: 0.5 }}>
                   <Grid size={6}>
                     <Typography variant="body2">{item.productName}</Typography>
+                    {item.sku ? (
+                      <Typography variant="caption" color="text.secondary">
+                        {item.sku}
+                      </Typography>
+                    ) : null}
                   </Grid>
                   <Grid size={3}>
                     <Typography variant="body2">×{item.quantity}</Typography>
