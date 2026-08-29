@@ -727,16 +727,30 @@ html[lang='si'] .popy-home .brand {
   margin: 0;
 }
 
-.popy-home .testi-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+.popy-home .testi-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
 }
 
-@media (max-width: 920px) {
-  .popy-home .testi-grid {
-    grid-template-columns: 1fr;
-  }
+.popy-home .testi-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.popy-home .testi-nav [data-slot='carousel-previous'],
+.popy-home .testi-nav [data-slot='carousel-next'] {
+  background: var(--paper);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.popy-home .testi-nav [data-slot='carousel-previous']:hover,
+.popy-home .testi-nav [data-slot='carousel-next']:hover {
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .popy-home .testi {
@@ -746,6 +760,7 @@ html[lang='si'] .popy-home .brand {
   padding: 28px 26px;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .popy-home .testi-quote {
