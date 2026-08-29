@@ -1,0 +1,147 @@
+{
+  "nav": {
+    "homeAria": "Popy home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "how": "How it works",
+    "contact": "Contact",
+    "login": "Log in",
+    "getStarted": "Get started",
+    "goDashboard": "Go to dashboard",
+    "openPos": "Open POS",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "hero": {
+    "eyebrow": "Point of sale, built for retail",
+    "title": "Every sale, <em>Captured.</em>",
+    "lead": "Popy runs your checkout, tracks your stock across every branch, and closes your books — reliably, down to every transaction.",
+    "startTrial": "Start free trial",
+    "bookDemo": "Book a demo",
+    "noCard": "No card required",
+    "setupFast": "Setup in under a day",
+    "multiBranch": "Multi-branch ready"
+  },
+  "receipt": {
+    "shop": "POPY MARKET — MAIN",
+    "txn": "TXN #48213 · 09:41 AM",
+    "total": "TOTAL",
+    "approved": "APPROVED"
+  },
+  "trust": {
+    "businesses": "Businesses running on Popy",
+    "uptime": "Uptime, every branch",
+    "transactions": "Transactions processed / mo",
+    "support": "Human support"
+  },
+  "features": {
+    "eyebrow": "Features",
+    "title": "Everything a checkout counter needs to run itself.",
+    "lead": "Four systems working from one shared ledger — so stock, sales, and reporting never drift out of sync.",
+    "inventory": {
+      "ln": "INVENTORY",
+      "title": "Live inventory sync",
+      "body": "Stock updates the instant a sale rings up — across every register and every branch."
+    },
+    "branches": {
+      "ln": "BRANCHES",
+      "title": "Multi-branch by default",
+      "body": "Run one shop or twenty from a single dashboard, with per-location pricing and stock."
+    },
+    "reporting": {
+      "ln": "REPORTING",
+      "title": "Real-time reporting",
+      "body": "Know today's revenue, margin, and top sellers before you close the till."
+    },
+    "payments": {
+      "ln": "PAYMENTS",
+      "title": "Secure payments",
+      "body": "Card, cash, and QR — reconciled automatically, with every transaction logged."
+    }
+  },
+  "how": {
+    "eyebrow": "Process",
+    "title": "Live in three steps.",
+    "lead": "No IT team required — most shops are ringing up sales the same day.",
+    "step1": {
+      "title": "Set up your catalog",
+      "body": "Import your products, prices, and stock — by spreadsheet or barcode scan."
+    },
+    "step2": {
+      "title": "Start selling",
+      "body": "Ring up sales from any till or device, online or offline."
+    },
+    "step3": {
+      "title": "Track every branch",
+      "body": "Watch sales, stock, and margin roll up in one live dashboard."
+    }
+  },
+  "testimonials": {
+    "eyebrow": "Trusted by owners",
+    "title": "What shop owners say after switching.",
+    "one": {
+      "quote": "Stock across our two branches finally matches. We stopped over-ordering within the first month.",
+      "role": "Owner, Kandy General Store"
+    },
+    "two": {
+      "quote": "Reporting used to take a spreadsheet and an hour. Now it's already there when I open the shop.",
+      "role": "Manager, Popy Market"
+    },
+    "three": {
+      "quote": "Support actually picks up. That alone was worth the switch from our old system.",
+      "role": "Owner, Fresh Corner"
+    }
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "title": "Straightforward plans, no surprise fees.",
+    "lead": "Every plan includes unlimited transactions and free support.",
+    "popular": "Most popular",
+    "perMonth": "/mo",
+    "starter": {
+      "name": "Starter",
+      "desc": "For a single till, single location.",
+      "cta": "Choose Starter",
+      "item1": "1 branch, 2 registers",
+      "item2": "Inventory tracking",
+      "item3": "Daily sales reports",
+      "item4": "Email support"
+    },
+    "business": {
+      "name": "Business",
+      "desc": "For growing multi-branch shops.",
+      "cta": "Choose Business",
+      "item1": "Up to 5 branches",
+      "item2": "Real-time reporting",
+      "item3": "Staff roles & permissions",
+      "item4": "Priority support"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "amount": "Custom",
+      "desc": "For chains with custom needs.",
+      "cta": "Talk to sales",
+      "item1": "Unlimited branches",
+      "item2": "Dedicated account manager",
+      "item3": "Custom integrations",
+      "item4": "SLA-backed uptime"
+    }
+  },
+  "cta": {
+    "title": "Trusted at every transaction.",
+    "lead": "Set up your first branch today — most shops are live and selling by the end of the day."
+  },
+  "footer": {
+    "tagline": "Point-of-sale software for retail shops that run on trust — one till or a hundred.",
+    "product": "Product",
+    "company": "Company",
+    "support": "Support",
+    "about": "About",
+    "careers": "Careers",
+    "contact": "Contact",
+    "help": "Help center",
+    "status": "Status",
+    "privacy": "Privacy",
+    "rights": "© 2026 Popy. All rights reserved."
+  }
+}
