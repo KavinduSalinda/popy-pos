@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { ROUTES } from '@/constants';
 import { LOGO_SRC } from '../brand';
 import './HomePage.css';
+import { CloudShader } from "@/components/ui/cloud-shader";
 
 const NAV_LINKS = [
   { label: 'Features', href: '#features' },
@@ -216,8 +217,9 @@ const HomePage = () => {
         </nav>
       </header>
 
-      <section className="hero" id="top">
-        <div className="wrap hero-grid">
+      <section className="hero relative" id="top">
+      {/* <CloudShader className="absolute inset-0 z-0" /> */}
+        <div className="wrap hero-grid relative z-10 from-primary to-primary-dark opacity-90">
           <div>
             <div className="eyebrow">
               <span className="eyebrow-dot" />
