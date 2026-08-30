@@ -1,14 +1,17 @@
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { Box, Card, CardContent, Stack, ThemeProvider, Typography } from '@mui/material';
 import { Link as RouterLink, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader } from '@/components/common/Loader';
+import { ServerConnectionBadge, ServerSettingsDialog } from '@/components/common/ServerSettingsDialog';
 import { ROUTES } from '@/constants';
 import { GravityStarsBackground } from '@/components/animate-ui/components/backgrounds/gravity-stars';
 import { LOGO_SRC, POPY, popyPublicTheme } from '@/features/home/brand';
 
 export const AuthLayout = () => {
   const { isAuthenticated } = useAuth();
+  const [serverSettingsOpen, setServerSettingsOpen] = useState(false);
+
   if (isAuthenticated) {
     return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
@@ -29,6 +32,25 @@ export const AuthLayout = () => {
           color: '#04342c',
         }}
       >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 16,
+            right: 16,
+            zIndex: 20,
+          }}
+        >
+          <ServerConnectionBadge
+            onClick={() => setServerSettingsOpen(true)}
+            sx={{
+              bgcolor: 'rgba(255,255,255,0.9)',
+              color: '#04342c',
+              borderColor: 'rgba(4, 52, 44, 0.2)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            }}
+          />
+        </Box>
+
         <GravityStarsBackground
           className="absolute inset-0 flex items-center justify-center rounded-none pointer-events-none"
           starsCount={75}
@@ -43,6 +65,7 @@ export const AuthLayout = () => {
           starsInteraction={false}
           starsInteractionType="bounce"
         />
+
         <Box
           sx={{
             position: 'relative',
@@ -93,20 +116,48 @@ export const AuthLayout = () => {
               </Suspense>
             </CardContent>
           </Card>
-          <Typography
-            component={RouterLink}
-            to={ROUTES.HOME}
-            variant="body2"
-            sx={{
-              mt: 2,
-              color: POPY.steel,
-              textDecoration: 'none',
-              '&:hover': { color: POPY.navy },
-            }}
-          >
-            Back to home
-          </Typography>
+
+          <Stack direction="row" spacing={2} sx={{ mt: 2 }} alignItems="center">
+            <Typography
+              component={RouterLink}
+              to={ROUTES.HOME}
+              variant="body2"
+              sx={{
+                color: POPY.steel,
+                textDecoration: 'none',
+                '&:hover': { color: POPY.navy },
+              }}
+            >
+              Back to home
+            </Typography>
+            <Typography variant="body2" sx={{ color: POPY.steel }}>
+              •
+            </Typography>
+            <Typography
+              component="button"
+              type="button"
+              onClick={() => setServerSettingsOpen(true)}
+              variant="body2"
+              sx={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                color: POPY.steel,
+                textDecoration: 'underline',
+                '&:hover': { color: POPY.navy },
+              }}
+            >
+              Server settings
+            </Typography>
+          </Stack>
         </Box>
+
+        <ServerSettingsDialog
+          open={serverSettingsOpen}
+          onClose={() => setServerSettingsOpen(false)}
+        />
       </Box>
     </ThemeProvider>
   );
