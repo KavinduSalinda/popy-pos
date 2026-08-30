@@ -1,7 +1,7 @@
 import type { BaseQueryFn } from '@reduxjs/toolkit/query';
 import type { AxiosRequestConfig } from 'axios';
 import axios, { type AxiosError } from 'axios';
-import { APP_CONFIG } from '@/constants';
+import { getApiBaseUrl } from '@/services/serverConfig';
 import { tokenService } from '@/services/tokenService';
 import type { ApiErrorPayload } from '@/types';
 import type { RefreshResponse } from '@/features/auth/types';
@@ -32,7 +32,7 @@ const performRefresh = async (): Promise<boolean> => {
 
   try {
     const { data } = await axios.post<RefreshResponse>(
-      `${APP_CONFIG.apiBaseUrl}/auth/refresh`,
+      `${getApiBaseUrl()}/auth/refresh`,
       { refreshToken },
       { headers: { 'Content-Type': 'application/json' } },
     );

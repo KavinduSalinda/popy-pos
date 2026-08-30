@@ -1,14 +1,15 @@
 import axios from 'axios';
-import { APP_CONFIG } from '@/constants';
+import { getApiBaseUrl } from '@/services/serverConfig';
 import { tokenService } from '@/services/tokenService';
 
 export const axiosClient = axios.create({
-  baseURL: APP_CONFIG.apiBaseUrl,
+  baseURL: getApiBaseUrl(),
   headers: { 'Content-Type': 'application/json' },
   timeout: 30_000,
 });
 
 axiosClient.interceptors.request.use((config) => {
+  config.baseURL = getApiBaseUrl();
   const token = tokenService.getAccessToken();
   if (token) {
     config.headers.set('Authorization', `Bearer ${token}`);
