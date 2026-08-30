@@ -176,8 +176,9 @@ class ShopAdmin(admin.ModelAdmin):
         url = reverse("admin:accounts_user_add") + f"?shop={obj.pk}"
         return format_html('<a class="button" href="{}">Add user for this shop</a>', url)
 
-    def get_readonly_fields(self, request, obj=None):
-        fields = list(super().get_readonly_fields(request, obj))
+    def get_fieldsets(self, request, obj=None):
         if obj is None:
-            return [field for field in fields if field != "manage_users_link"]
-        return fields
+            return (
+                (None, {"fields": ("name", "code", "address", "phone", "email", "is_active")}),
+            )
+        return super().get_fieldsets(request, obj)
