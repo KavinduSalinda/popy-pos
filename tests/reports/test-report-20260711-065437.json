@@ -1,0 +1,14 @@
+{
+  "generatedAt": "2026-07-11T06:54:37.032419+00:00",
+  "results": [
+    {
+      "name": "Backend API tests",
+      "command": "C:\\Users\\USER\\Desktop\\popy\\popy-be\\venv\\Scripts\\python.exe -m pytest backend -m not smoke",
+      "exit_code": 0,
+      "duration_sec": 130.09,
+      "status": "PASS"
+    }
+  ],
+  "passed": 1,
+  "failed": 0
+}

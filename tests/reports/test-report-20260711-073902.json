@@ -1,0 +1,28 @@
+{
+  "generatedAt": "2026-07-11T07:39:02.446896+00:00",
+  "results": [
+    {
+      "name": "Backend API tests",
+      "command": "C:\\Users\\USER\\Desktop\\popy\\popy-be\\venv\\Scripts\\python.exe -m pytest backend -m not smoke",
+      "exit_code": 1,
+      "duration_sec": 257.58,
+      "status": "FAIL"
+    },
+    {
+      "name": "Frontend unit tests",
+      "command": "npm.cmd run test",
+      "exit_code": 1,
+      "duration_sec": 59.98,
+      "status": "FAIL"
+    },
+    {
+      "name": "Frontend typecheck",
+      "command": "npm.cmd run typecheck",
+      "exit_code": 2,
+      "duration_sec": 35.89,
+      "status": "FAIL"
+    }
+  ],
+  "passed": 0,
+  "failed": 3
+}
