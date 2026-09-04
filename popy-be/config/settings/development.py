@@ -4,7 +4,7 @@ if config("USE_SQLITE", default=True, cast=bool):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",  # noqa: F405
+            "NAME": config("SQLITE_PATH", default=str(BASE_DIR / "db.sqlite3")),  # noqa: F405
         }
     }
 else:

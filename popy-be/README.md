@@ -14,7 +14,8 @@ python manage.py seed_pos
 python manage.py runserver 8000
 ```
 
-API base: `http://localhost:8000/api`
+API base: `http://localhost:8000/api`  
+Health check: `http://localhost:8000/api/health`
 
 ### Dev login
 

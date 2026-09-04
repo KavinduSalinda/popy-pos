@@ -57,7 +57,15 @@ export default defineConfig({
         'src/**/*.d.ts',
         'src/main.tsx',
         'src/test/**',
+        'src/components/ui/**',
+        'src/components/animate-ui/**',
       ],
+      thresholds: {
+        lines: 10,
+        functions: 10,
+        branches: 10,
+        statements: 10,
+      },
     },
   },
 });

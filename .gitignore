@@ -1,0 +1,37 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+*.swp
+
+# Python
+**/venv/
+**/__pycache__/
+*.py[cod]
+*.sqlite3
+db.sqlite3
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+popy-be/staticfiles/
+popy-be/media/
+
+# Node
+**/node_modules/
+popy-fe/dist/
+popy-fe/coverage/
+popy-fe/release/
+
+# Env & secrets
+**/.env
+!**/.env.example
+
+# Test artifacts
+tests/reports/
+tests/.test_db.sqlite3
+
+# Electron / build caches
+*.blockmap
+.cache/
