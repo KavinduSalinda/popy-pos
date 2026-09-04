@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Box, Button, Typography } from '@mui/material';
+import { logger } from '@/utils/logger';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -26,8 +27,11 @@ export class ErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    // In production this is where you would forward to Sentry/Datadog/etc.
-    console.error('Uncaught UI error:', error, info.componentStack);
+    logger.error('Uncaught UI error', {
+      message: error.message,
+      stack: error.stack,
+      componentStack: info.componentStack,
+    });
   }
 
   private handleReset = (): void => {

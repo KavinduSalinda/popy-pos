@@ -18,6 +18,7 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { useGetCustomersQuery } from '@/features/customers/customersApi';
 import { useGetPosCheckoutNotificationOptionsQuery } from '@/features/settings/settingsApi';
 import { formatCurrency, getErrorMessage } from '@/utils';
+import { logger } from '@/utils/logger';
 import { useOnlineStatus } from '@/offline/hooks/useOnlineStatus';
 import { canWorkOffline } from '@/offline/offlineAuth';
 import { getCachedCustomers, getCheckoutSettings } from '@/offline/catalogCache';
@@ -162,6 +163,10 @@ export const PaymentDialog = ({ open, onClose }: PaymentDialogProps) => {
         dispatch(clearCart());
         toast.success('Sale saved offline — will sync when online.');
       } catch (error) {
+        logger.error('Offline sale queue failed', {
+          shopId,
+          message: getErrorMessage(error),
+        });
         toast.error(getErrorMessage(error));
       }
       return;
@@ -184,6 +189,10 @@ export const PaymentDialog = ({ open, onClose }: PaymentDialogProps) => {
       dispatch(clearCart());
       toast.success('Sale completed');
     } catch (error) {
+      logger.error('Online sale create failed', {
+        shopId,
+        message: getErrorMessage(error),
+      });
       toast.error(getErrorMessage(error));
     }
   };

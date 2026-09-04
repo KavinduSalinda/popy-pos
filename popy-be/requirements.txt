@@ -1,12 +1,13 @@
-Django>=5.0,<6
-djangorestframework>=3.15
-djangorestframework-simplejwt>=5.3
-django-cors-headers>=4.3
-django-jazzmin>=3.0
-mysqlclient>=2.2
-django-filter>=24.0
-python-decouple>=3.8
-Pillow>=10.0
-openpyxl>=3.1
-gunicorn>=22.0
-whitenoise>=6.7
+# Pinned for reproducible installs (generated from a working local venv).
+Django==5.2.14
+djangorestframework==3.17.1
+djangorestframework-simplejwt==5.5.1
+django-cors-headers==4.9.0
+django-jazzmin==3.0.5
+mysqlclient==2.2.8
+django-filter==25.2
+python-decouple==3.8
+Pillow==12.2.0
+openpyxl==3.1.5
+gunicorn==26.2.0
+whitenoise==6.12.0
