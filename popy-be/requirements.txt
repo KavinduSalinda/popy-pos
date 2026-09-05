@@ -1,5 +1,5 @@
 # Pinned for reproducible installs (generated from a working local venv).
-Django==5.2.14
+Django==6.1
 djangorestframework==3.17.1
 djangorestframework-simplejwt==5.5.1
 django-cors-headers==4.9.0
