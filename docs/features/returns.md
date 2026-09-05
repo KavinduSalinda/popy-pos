@@ -11,7 +11,7 @@ Returns reverse completed sales or purchases by restocking or reducing inventory
 
 When a customer returns purchased goods:
 
-- Reference a completed sale by ID.
+- Reference a completed sale by ID **or receipt reference** (e.g. `SL-2026-0060`).
 - Provide a reason and refund amount.
 - Stock is **restored** for all sale line items (full return in current UI).
 
@@ -19,14 +19,14 @@ API: `POST /api/returns/sales`
 
 ```json
 {
-  "saleId": 1,
+  "saleId": "SL-2026-0060",
   "reason": "Defective item",
   "refundAmount": 50.00,
   "items": []
 }
 ```
 
-An empty `items` array performs a full return of all sale lines.
+`saleId` may be the numeric database id or the sale reference string.
 
 ## Purchase returns
 

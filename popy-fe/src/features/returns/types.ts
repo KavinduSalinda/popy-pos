@@ -6,14 +6,16 @@ export interface ReturnItemPayload {
 }
 
 export interface SalesReturnPayload {
-  saleId: ID;
+  /** Numeric sale id or receipt reference (e.g. SL-2026-0060). */
+  saleId: ID | string;
   reason: string;
   items: ReturnItemPayload[];
   refundAmount: number;
 }
 
 export interface PurchaseReturnPayload {
-  purchaseId: ID;
+  /** Numeric purchase id or purchase reference. */
+  purchaseId: ID | string;
   reason: string;
   items: ReturnItemPayload[];
   amount: number;

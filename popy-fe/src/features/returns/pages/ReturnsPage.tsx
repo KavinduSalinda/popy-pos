@@ -54,7 +54,9 @@ const SalesReturnForm = () => {
       <FormTextField
         name="saleId"
         control={control}
-        label="Sale reference / ID"
+        label="Sale reference"
+        placeholder="e.g. SL-2026-0060"
+        helperText="Copy the reference from Sales (e.g. SL-2026-0060). Numeric ID also works."
       />
       <FormTextField
         name="reason"
@@ -109,7 +111,9 @@ const PurchaseReturnForm = () => {
       <FormTextField
         name="purchaseId"
         control={control}
-        label="Purchase reference / ID"
+        label="Purchase reference"
+        placeholder="e.g. PO-2026-0001"
+        helperText="Copy the reference from Purchases. Numeric ID also works."
       />
       <FormTextField
         name="reason"

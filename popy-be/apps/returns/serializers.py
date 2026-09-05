@@ -30,14 +30,16 @@ class PurchaseReturnSerializer(CamelCaseModelSerializer):
 
 
 class SalesReturnCreateSerializer(CamelCaseSerializer):
-    sale_id = serializers.IntegerField()
+    # Numeric sale id or human reference (e.g. SL-2026-0060)
+    sale_id = serializers.CharField()
     reason = serializers.CharField()
     items = serializers.ListField(child=serializers.DictField(), required=False, default=list)
     refund_amount = serializers.DecimalField(max_digits=14, decimal_places=2)
 
 
 class PurchaseReturnCreateSerializer(CamelCaseSerializer):
-    purchase_id = serializers.IntegerField()
+    # Numeric purchase id or human reference (e.g. PO-2026-0001)
+    purchase_id = serializers.CharField()
     reason = serializers.CharField()
     items = serializers.ListField(child=serializers.DictField(), required=False, default=list)
     amount = serializers.DecimalField(max_digits=14, decimal_places=2)
