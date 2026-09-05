@@ -196,7 +196,20 @@ export const ProductGrid = ({
             onPaginationModelChange={setPaginationModel}
             autoHeight={false}
             height="100%"
-            sx={{ height: '100%', minHeight: 320 }}
+            getRowClassName={(params) =>
+              params.row.stockQuantity <= 0 ? 'pos-row-out-of-stock' : ''
+            }
+            sx={{
+              height: '100%',
+              minHeight: 320,
+              '& .pos-row-out-of-stock': {
+                bgcolor: 'rgba(211, 47, 47, 0.08)',
+                color: 'text.secondary',
+                '&:hover, &.Mui-hovered': {
+                  bgcolor: 'rgba(211, 47, 47, 0.14)',
+                },
+              },
+            }}
             pageSizeOptions={isMobile ? [MOBILE_PAGE_SIZE] : [10, 20, 50]}
             onRowClick={(params) => addToCart(params.row)}
           />

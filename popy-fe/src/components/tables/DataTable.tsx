@@ -16,6 +16,7 @@ export interface DataTableProps<T extends object> {
   paginationModel?: GridPaginationModel;
   onPaginationModelChange?: (model: GridPaginationModel) => void;
   getRowId?: GridRowIdGetter<T>;
+  getRowClassName?: DataGridProps['getRowClassName'];
   paginationMode?: DataGridProps['paginationMode'];
   autoHeight?: boolean;
   pageSizeOptions?: number[];
@@ -33,6 +34,7 @@ export function DataTable<T extends object>({
   paginationModel,
   onPaginationModelChange,
   getRowId,
+  getRowClassName,
   paginationMode = 'server',
   autoHeight = true,
   pageSizeOptions = [...APP_CONFIG.pageSizeOptions],
@@ -48,6 +50,7 @@ export function DataTable<T extends object>({
         loading={loading}
         autoHeight={autoHeight}
         getRowId={getRowId}
+        getRowClassName={getRowClassName}
         rowCount={paginationMode === 'server' ? (rowCount ?? 0) : undefined}
         paginationMode={paginationMode}
         paginationModel={paginationModel}
