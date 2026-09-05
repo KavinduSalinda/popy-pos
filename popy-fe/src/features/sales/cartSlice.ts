@@ -9,8 +9,8 @@ import { toNumber } from '@/utils';
 import type { ID } from '@/types';
 import {
   clampQuantity,
-  normalizeProductUnit,
   quantityStepForUnit,
+  resolveSellUnit,
 } from '@/features/products/schema';
 import type { CartItem, PaymentMethod, PosProduct } from './types';
 
@@ -34,7 +34,7 @@ const cartSlice = createSlice({
   reducers: {
     addItem: (state, action: PayloadAction<PosProduct>) => {
       const product = action.payload;
-      const unit = product.unit ? normalizeProductUnit(product.unit) : undefined;
+      const unit = resolveSellUnit(product);
       const step = quantityStepForUnit(unit);
       const existing = state.items.find((i) => i.productId === product.id);
       if (existing) {
@@ -63,10 +63,12 @@ const cartSlice = createSlice({
         (i) => i.productId === action.payload.productId,
       );
       if (!item) return;
+      const sellUnit = resolveSellUnit({ unit: item.unit, name: item.name });
+      item.unit = sellUnit;
       item.quantity = clampQuantity(
         action.payload.quantity,
         item.stockQuantity,
-        item.unit,
+        sellUnit,
       );
     },
     removeItem: (state, action: PayloadAction<ID>) => {

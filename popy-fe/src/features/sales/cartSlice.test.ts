@@ -31,7 +31,7 @@ describe('cartSlice', () => {
       id: 2,
       name: 'Chicken Whole 1kg',
       sku: 'CHK-01',
-      unit: 'kg',
+      unit: 'pack',
       sellingPrice: 1050,
       stockQuantity: 10,
     };
@@ -39,6 +39,7 @@ describe('cartSlice', () => {
       cartReducer(undefined, addItem(chicken)),
       setItemQuantity({ productId: 2, quantity: 1.5 }),
     );
+    expect(state.items[0]?.unit).toBe('kg');
     expect(state.items[0]?.quantity).toBe(1.5);
   });
 

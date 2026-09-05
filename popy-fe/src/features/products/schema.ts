@@ -18,69 +18,75 @@ export const productSchema = z.object({
 export type ProductFormValues = z.infer<typeof productSchema>;
 
 export const PRODUCT_UNITS = [
-  { value: 'pcs', label: 'pcs' },
-  { value: 'kg', label: 'kg / g' },
-  { value: 'litre', label: 'litre / ml' },
-  { value: 'box', label: 'box' },
-  { value: 'pack', label: 'pack' },
-  { value: 'dozen', label: 'dozen' },
-];
+  'pcs',
+  'kg',
+  'g',
+  'litre',
+  'ml',
+  'box',
+  'pack',
+  'dozen',
+].map((u) => ({ value: u, label: u }));
 
-/** Map legacy split units onto the combined weight / volume choices. */
-export const normalizeProductUnit = (unit: string): string => {
-  const normalized = unit.trim().toLowerCase();
-  if (normalized === 'g' || normalized === 'gram' || normalized === 'grams') {
+const FRACTIONAL_UNITS = new Set(['kg', 'g', 'litre', 'liter', 'l', 'ml']);
+
+export const normalizeProductUnit = (unit: string): string =>
+  unit.trim().toLowerCase();
+
+/** Infer sell-by unit. Name wins when it clearly indicates weight/volume
+ * (e.g. unit is "pack" but name is "Chicken Whole 1kg"). */
+export const resolveSellUnit = (product: {
+  unit?: string | null;
+  name?: string | null;
+}): string | undefined => {
+  const name = (product.name ?? '').toLowerCase();
+  // Note: "1kg" has no word boundary before "kg", so do not use \bkg\b
+  if (/(?:^|[^a-z])kg(?:$|[^a-z])/.test(name) || name.includes('kilogram')) {
     return 'kg';
   }
-  if (
-    normalized === 'ml' ||
-    normalized === 'millilitre' ||
-    normalized === 'milliliter' ||
-    normalized === 'l' ||
-    normalized === 'liter' ||
-    normalized === 'liters' ||
-    normalized === 'litres'
-  ) {
-    return 'litre';
+  if (/\b(litres?|liters?)\b/.test(name)) return 'litre';
+  if (/(?:^|[^a-z])\d+([.,]\d+)?\s*l(?:$|[^a-z])/.test(name)) return 'litre';
+  if (product.unit?.trim()) {
+    return normalizeProductUnit(product.unit);
   }
-  return normalized || unit;
+  return undefined;
 };
 
-const FRACTIONAL_UNITS = new Set(['kg', 'litre', 'g', 'ml', 'gram', 'grams']);
-
-/** Weight / volume units can be sold in fractions (1.5 kg, 0.25 litre). */
+/** Weight / volume units that can be sold in fractional amounts. */
 export const allowsFractionalQuantity = (unit?: string | null): boolean => {
   if (!unit) return false;
   return FRACTIONAL_UNITS.has(normalizeProductUnit(unit));
 };
 
-export const quantityStepForUnit = (unit?: string | null): number =>
-  allowsFractionalQuantity(unit) ? 0.1 : 1;
-
-export const minQuantityForUnit = (unit?: string | null): number =>
-  allowsFractionalQuantity(unit) ? 0.001 : 1;
-
-export const roundQuantity = (quantity: number, unit?: string | null): number => {
-  if (!Number.isFinite(quantity)) return minQuantityForUnit(unit);
-  if (allowsFractionalQuantity(unit)) {
-    return Math.round(quantity * 1000) / 1000;
+export const quantityStepForUnit = (unit?: string | null): number => {
+  if (!unit) return 1;
+  const normalized = normalizeProductUnit(unit);
+  if (
+    normalized === 'kg' ||
+    normalized === 'litre' ||
+    normalized === 'liter' ||
+    normalized === 'l'
+  ) {
+    return 1;
   }
-  return Math.round(quantity);
+  if (normalized === 'g' || normalized === 'ml') {
+    return 1;
+  }
+  return 1;
 };
 
+/** Clamp POS qty to stock; keep up to 3 decimals for fractional units. */
 export const clampQuantity = (
   quantity: number,
   maxStock: number,
   unit?: string | null,
 ): number => {
-  const min = minQuantityForUnit(unit);
-  const max = Math.max(min, maxStock);
-  return roundQuantity(Math.max(min, Math.min(quantity, max)), unit);
-};
-
-export const formatQuantityLabel = (quantity: number, unit?: string | null): string => {
-  if (allowsFractionalQuantity(unit)) {
-    return Number(quantity.toFixed(3)).toString();
-  }
-  return String(Math.round(quantity));
+  const fractional = allowsFractionalQuantity(unit);
+  const min = fractional ? 0.001 : 1;
+  const max = Math.max(min, Number(maxStock) || min);
+  let next = Number(quantity);
+  if (!Number.isFinite(next)) next = min;
+  next = Math.max(min, Math.min(next, max));
+  if (fractional) return Math.round(next * 1000) / 1000;
+  return Math.round(next);
 };

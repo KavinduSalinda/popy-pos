@@ -15,14 +15,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { EmptyState } from '@/components/common';
 import { formatCurrency } from '@/utils';
-import { useGetCustomersQuery } from '@/features/customers/customersApi';
 import {
   allowsFractionalQuantity,
   clampQuantity,
-  formatQuantityLabel,
-  minQuantityForUnit,
   quantityStepForUnit,
+  resolveSellUnit,
 } from '@/features/products/schema';
+import { useGetCustomersQuery } from '@/features/customers/customersApi';
 import { getCachedCustomers } from '@/offline/catalogCache';
 import { useOnlineStatus } from '@/offline/hooks/useOnlineStatus';
 import {
@@ -102,7 +101,13 @@ export const CartPanel = ({ onCheckout }: CartPanelProps) => {
           />
         ) : (
           <Stack spacing={1}>
-            {items.map((item) => (
+            {items.map((item) => {
+              const sellUnit = resolveSellUnit({
+                unit: item.unit,
+                name: item.name,
+              });
+              const step = quantityStepForUnit(sellUnit);
+              return (
               <Box
                 key={String(item.productId)}
                 sx={{
@@ -144,15 +149,11 @@ export const CartPanel = ({ onCheckout }: CartPanelProps) => {
                     <IconButton
                       size="small"
                       aria-label="decrease quantity"
-                      disabled={
-                        item.quantity <= minQuantityForUnit(item.unit)
-                      }
                       onClick={() =>
                         dispatch(
                           setItemQuantity({
                             productId: item.productId,
-                            quantity:
-                              item.quantity - quantityStepForUnit(item.unit),
+                            quantity: item.quantity - step,
                           }),
                         )
                       }
@@ -163,7 +164,7 @@ export const CartPanel = ({ onCheckout }: CartPanelProps) => {
                       productId={item.productId}
                       quantity={item.quantity}
                       max={item.stockQuantity}
-                      unit={item.unit}
+                      unit={sellUnit}
                       onCommit={(quantity) =>
                         dispatch(
                           setItemQuantity({
@@ -181,17 +182,16 @@ export const CartPanel = ({ onCheckout }: CartPanelProps) => {
                         dispatch(
                           setItemQuantity({
                             productId: item.productId,
-                            quantity:
-                              item.quantity + quantityStepForUnit(item.unit),
+                            quantity: item.quantity + step,
                           }),
                         )
                       }
                     >
                       <Add fontSize="small" />
                     </IconButton>
-                    {item.unit ? (
+                    {sellUnit ? (
                       <Typography variant="caption" color="text.secondary">
-                        {item.unit}
+                        {sellUnit}
                       </Typography>
                     ) : null}
                   </Stack>
@@ -200,7 +200,8 @@ export const CartPanel = ({ onCheckout }: CartPanelProps) => {
                   </Typography>
                 </Stack>
               </Box>
-            ))}
+              );
+            })}
           </Stack>
         )}
       </Box>
@@ -247,29 +248,42 @@ const CartQuantityInput = ({
   onCommit: (quantity: number) => void;
 }) => {
   const fractional = allowsFractionalQuantity(unit);
-  const [draft, setDraft] = useState(formatQuantityLabel(quantity, unit));
+  const [draft, setDraft] = useState(String(quantity));
 
   useEffect(() => {
-    setDraft(formatQuantityLabel(quantity, unit));
-  }, [quantity, productId, unit]);
+    setDraft(String(quantity));
+  }, [quantity, productId]);
 
   const commit = () => {
-    const parsed = Number.parseFloat(draft.replace(',', '.'));
+    const normalized = draft.trim().replace(',', '.');
+    const parsed = Number.parseFloat(normalized);
     if (!Number.isFinite(parsed)) {
-      setDraft(formatQuantityLabel(quantity, unit));
+      setDraft(String(quantity));
       return;
     }
     const next = clampQuantity(parsed, max, unit);
-    setDraft(formatQuantityLabel(next, unit));
+    setDraft(String(next));
     if (next !== quantity) onCommit(next);
   };
 
   return (
     <TextField
       size="small"
-      type="number"
+      // text + decimal keypad: type=number blocks "." on many mobile browsers
+      type="text"
       value={draft}
-      onChange={(e) => setDraft(e.target.value)}
+      onChange={(e) => {
+        const raw = e.target.value;
+        if (fractional) {
+          if (raw === '' || /^\d*[.,]?\d{0,3}$/.test(raw)) {
+            setDraft(raw);
+          }
+          return;
+        }
+        if (raw === '' || /^\d*$/.test(raw)) {
+          setDraft(raw);
+        }
+      }}
       onBlur={commit}
       onFocus={(e) => e.target.select()}
       onKeyDown={(e) => {
@@ -278,31 +292,18 @@ const CartQuantityInput = ({
           (e.target as HTMLInputElement).blur();
         }
       }}
-      title={
-        fractional
-          ? 'Enter kg or litres (e.g. 1.5 = 1kg + 500g)'
-          : 'Enter whole quantity'
-      }
-      inputProps={{
-        min: minQuantityForUnit(unit),
-        max,
-        step: fractional ? 0.001 : 1,
-        inputMode: fractional ? 'decimal' : 'numeric',
-        'aria-label': 'quantity',
-        style: { textAlign: 'center', padding: '4px 2px' },
+      slotProps={{
+        htmlInput: {
+          inputMode: fractional ? 'decimal' : 'numeric',
+          pattern: fractional ? '[0-9]*[.,]?[0-9]*' : '[0-9]*',
+          'aria-label': 'quantity',
+          style: { textAlign: 'center', padding: '4px 2px' },
+        },
       }}
       sx={{
         width: fractional ? 72 : 52,
         '& .MuiOutlinedInput-root': {
           borderRadius: 1.5,
-        },
-        '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button':
-          {
-            WebkitAppearance: 'none',
-            margin: 0,
-          },
-        '& input[type=number]': {
-          MozAppearance: 'textfield',
         },
       }}
     />
