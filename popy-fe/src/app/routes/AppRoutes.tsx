@@ -57,6 +57,9 @@ const SaleDetailsPage = lazy(
 const ReturnsPage = lazy(() => import('@/features/returns/pages/ReturnsPage'));
 const UsersPage = lazy(() => import('@/features/users/pages/UsersPage'));
 const ReportsPage = lazy(() => import('@/features/reports/pages/ReportsPage'));
+const AttendancePage = lazy(
+  () => import('@/features/attendance/pages/AttendancePage'),
+);
 const SettingsPage = lazy(
   () => import('@/features/settings/pages/SettingsPage'),
 );
@@ -196,6 +199,16 @@ export const AppRoutes = () => (
         element={
           <ProtectedRoute permission={PERMISSIONS.USER_VIEW}>
             <UsersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={ROUTES.ATTENDANCE}
+        element={
+          <ProtectedRoute
+            anyOf={[PERMISSIONS.ATTENDANCE_MARK, PERMISSIONS.ATTENDANCE_VIEW]}
+          >
+            <AttendancePage />
           </ProtectedRoute>
         }
       />

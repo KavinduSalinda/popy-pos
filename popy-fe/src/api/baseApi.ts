@@ -16,6 +16,7 @@ export const TAG_TYPES = [
   'Report',
   'Settings',
   'Shop',
+  'Attendance',
 ] as const;
 
 /**

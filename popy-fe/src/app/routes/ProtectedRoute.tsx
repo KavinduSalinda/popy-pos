@@ -8,6 +8,8 @@ import type { Permission } from '@/constants/permissions';
 interface ProtectedRouteProps {
   children: ReactNode;
   permission?: Permission;
+  /** Allow access if the user has any of these permissions. */
+  anyOf?: Permission[];
 }
 
 /**
@@ -18,6 +20,7 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({
   children,
   permission,
+  anyOf,
 }: ProtectedRouteProps) => {
   const { isAuthenticated } = useAuth();
   const { hasPermission } = usePermissions();
@@ -29,7 +32,13 @@ export const ProtectedRoute = ({
     );
   }
 
-  if (permission && !hasPermission(permission)) {
+  const allowed = anyOf?.length
+    ? anyOf.some((p) => hasPermission(p))
+    : permission
+      ? hasPermission(permission)
+      : true;
+
+  if (!allowed) {
     return <Navigate to={ROUTES.FORBIDDEN} replace />;
   }
 

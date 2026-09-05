@@ -10,6 +10,7 @@ export interface Shop {
   phone?: string;
   email?: string;
   isActive?: boolean;
+  plan?: 'FREE' | 'PRO';
 }
 
 export interface User {

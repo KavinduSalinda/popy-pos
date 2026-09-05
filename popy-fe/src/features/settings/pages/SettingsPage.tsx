@@ -1,5 +1,6 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -30,6 +31,7 @@ interface ScenarioRowProps {
   smsEnabled: boolean;
   onEmailChange: (value: boolean) => void;
   onSmsChange: (value: boolean) => void;
+  disabled?: boolean;
   extra?: ReactNode;
 }
 
@@ -40,6 +42,7 @@ const ScenarioRow = ({
   smsEnabled,
   onEmailChange,
   onSmsChange,
+  disabled = false,
   extra,
 }: ScenarioRowProps) => (
   <Box>
@@ -54,6 +57,7 @@ const ScenarioRow = ({
         control={
           <Switch
             checked={emailEnabled}
+            disabled={disabled}
             onChange={(event) => onEmailChange(event.target.checked)}
           />
         }
@@ -63,6 +67,7 @@ const ScenarioRow = ({
         control={
           <Switch
             checked={smsEnabled}
+            disabled={disabled}
             onChange={(event) => onSmsChange(event.target.checked)}
           />
         }
@@ -75,16 +80,16 @@ const ScenarioRow = ({
 
 const defaultSettings: NotificationSettings = {
   id: 1,
-  posCheckoutEmailEnabled: true,
+  posCheckoutEmailEnabled: false,
   posCheckoutSmsEnabled: false,
-  posCheckoutCashierEmailEnabled: true,
+  posCheckoutCashierEmailEnabled: false,
   posCheckoutCashierSmsEnabled: false,
-  lowInventoryEmailEnabled: true,
+  lowInventoryEmailEnabled: false,
   lowInventorySmsEnabled: false,
   lowInventoryAlertPhone: '',
-  newCustomerEmailEnabled: true,
+  newCustomerEmailEnabled: false,
   newCustomerSmsEnabled: false,
-  newUserEmailEnabled: true,
+  newUserEmailEnabled: false,
   newUserSmsEnabled: false,
   updatedAt: '',
 };
@@ -92,17 +97,27 @@ const defaultSettings: NotificationSettings = {
 interface NotificationSettingsFormProps {
   initialSettings: NotificationSettings;
   shopName?: string;
+  isPro: boolean;
 }
 
 const NotificationSettingsForm = ({
   initialSettings,
   shopName,
+  isPro,
 }: NotificationSettingsFormProps) => {
   const [form, setForm] = useState(initialSettings);
   const [updateSettings, { isLoading: saving }] =
     useUpdateNotificationSettingsMutation();
 
+  useEffect(() => {
+    setForm(initialSettings);
+  }, [initialSettings]);
+
   const handleSave = async () => {
+    if (!isPro) {
+      toast.error('Activate the Pro plan to save notification settings.');
+      return;
+    }
     try {
       await updateSettings({
         posCheckoutEmailEnabled: form.posCheckoutEmailEnabled,
@@ -133,22 +148,38 @@ const NotificationSettingsForm = ({
             : 'Configure email (Brevo) and SMS (Text.lk) notifications for each scenario.'
         }
         actions={
-          <Button variant="contained" onClick={handleSave} disabled={saving}>
+          <Button
+            variant="contained"
+            onClick={() => void handleSave()}
+            disabled={saving || !isPro}
+          >
             {saving ? 'Saving…' : 'Save changes'}
           </Button>
         }
       />
 
+      {!isPro ? (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          Notification settings are a <strong>Pro</strong> feature. You can preview
+          the options below, but activate the Pro plan for this shop to turn them on
+          and save changes.
+        </Alert>
+      ) : null}
+
       <Card>
         <CardContent>
-          <Stack spacing={3} divider={<Divider flexItem />}>
+          <Stack
+            spacing={3}
+            divider={<Divider flexItem />}
+            sx={!isPro ? { opacity: 0.72 } : undefined}
+          >
             <Box>
               <Typography variant="subtitle1" fontWeight={600}>
                 POS checkout
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Enable receipt notifications at checkout. Cashiers with
-                permission can choose to send email or SMS for each sale.
+                Enable receipt notifications at checkout. Cashiers with permission
+                can choose to send email or SMS for each sale.
               </Typography>
               <Stack spacing={2}>
                 <Stack
@@ -160,6 +191,7 @@ const NotificationSettingsForm = ({
                     control={
                       <Switch
                         checked={form.posCheckoutEmailEnabled}
+                        disabled={!isPro}
                         onChange={(event) =>
                           setForm((prev) => ({
                             ...prev,
@@ -174,6 +206,7 @@ const NotificationSettingsForm = ({
                     control={
                       <Switch
                         checked={form.posCheckoutSmsEnabled}
+                        disabled={!isPro}
                         onChange={(event) =>
                           setForm((prev) => ({
                             ...prev,
@@ -197,12 +230,11 @@ const NotificationSettingsForm = ({
                     control={
                       <Switch
                         checked={form.posCheckoutCashierEmailEnabled}
-                        disabled={!form.posCheckoutEmailEnabled}
+                        disabled={!isPro || !form.posCheckoutEmailEnabled}
                         onChange={(event) =>
                           setForm((prev) => ({
                             ...prev,
-                            posCheckoutCashierEmailEnabled:
-                              event.target.checked,
+                            posCheckoutCashierEmailEnabled: event.target.checked,
                           }))
                         }
                       />
@@ -213,7 +245,7 @@ const NotificationSettingsForm = ({
                     control={
                       <Switch
                         checked={form.posCheckoutCashierSmsEnabled}
-                        disabled={!form.posCheckoutSmsEnabled}
+                        disabled={!isPro || !form.posCheckoutSmsEnabled}
                         onChange={(event) =>
                           setForm((prev) => ({
                             ...prev,
@@ -233,6 +265,7 @@ const NotificationSettingsForm = ({
               description="Alert staff when product stock drops to the reorder level."
               emailEnabled={form.lowInventoryEmailEnabled}
               smsEnabled={form.lowInventorySmsEnabled}
+              disabled={!isPro}
               onEmailChange={(value) =>
                 setForm((prev) => ({
                   ...prev,
@@ -248,6 +281,7 @@ const NotificationSettingsForm = ({
                     label="SMS alert phone"
                     helperText="Phone number for low-stock SMS alerts (e.g. 94771234567)"
                     value={form.lowInventoryAlertPhone}
+                    disabled={!isPro}
                     onChange={(event) =>
                       setForm((prev) => ({
                         ...prev,
@@ -266,6 +300,7 @@ const NotificationSettingsForm = ({
               description="Welcome message when a new customer is created."
               emailEnabled={form.newCustomerEmailEnabled}
               smsEnabled={form.newCustomerSmsEnabled}
+              disabled={!isPro}
               onEmailChange={(value) =>
                 setForm((prev) => ({ ...prev, newCustomerEmailEnabled: value }))
               }
@@ -279,6 +314,7 @@ const NotificationSettingsForm = ({
               description="Notify staff when a new user account is created."
               emailEnabled={form.newUserEmailEnabled}
               smsEnabled={form.newUserSmsEnabled}
+              disabled={!isPro}
               onEmailChange={(value) =>
                 setForm((prev) => ({ ...prev, newUserEmailEnabled: value }))
               }
@@ -297,9 +333,10 @@ export const SettingsPage = () => {
   const { data, isLoading } = useGetNotificationSettingsQuery();
   const { user } = useAuth();
   const currentShopId = useAppSelector((state) => state.auth.currentShopId);
-  const shopName = user?.shops?.find(
+  const currentShop = user?.shops?.find(
     (shop) => String(shop.id) === String(currentShopId),
-  )?.name;
+  );
+  const isPro = currentShop?.plan === 'PRO' || data?.proEnabled === true;
 
   if (isLoading || !data) {
     return (
@@ -309,11 +346,22 @@ export const SettingsPage = () => {
     );
   }
 
+  // Free shops always show toggles off (Pro feature defaults).
+  const initialSettings: NotificationSettings = isPro
+    ? data
+    : {
+        ...defaultSettings,
+        id: data.id,
+        updatedAt: data.updatedAt,
+        lowInventoryAlertPhone: data.lowInventoryAlertPhone,
+      };
+
   return (
     <NotificationSettingsForm
-      key={data.updatedAt}
-      initialSettings={data ?? defaultSettings}
-      shopName={shopName}
+      key={`${data.updatedAt}-${isPro ? 'pro' : 'free'}`}
+      initialSettings={initialSettings}
+      shopName={currentShop?.name}
+      isPro={Boolean(isPro)}
     />
   );
 };

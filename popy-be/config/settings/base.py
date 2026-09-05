@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "apps.reports",
     "apps.settings",
     "apps.sync",
+    "apps.attendance",
 ]
 
 MIDDLEWARE = [
@@ -93,6 +94,9 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Shop admin (and similar large inline forms) can exceed Django's default of 1000.
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000
 
 AUTH_USER_MODEL = "accounts.User"
 

@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from apps.accounts.views import UserViewSet
+from apps.attendance.views import AttendanceListView, MarkAttendanceView, MyAttendanceTodayView
 from apps.catalog.views import CategoryViewSet, PosProductListView, PosProductLookupView, ProductViewSet
 from apps.dashboard.views import DashboardViewSet
 from apps.inventory.views import InventoryViewSet, StockAdjustmentCreateView, StockTransactionListView
@@ -45,6 +46,9 @@ reports_profit = ReportViewSet.as_view({"get": "profit"})
 
 urlpatterns = [
     path("shops/accessible", AccessibleShopsView.as_view(), name="shops-accessible"),
+    path("attendance", MarkAttendanceView.as_view(), name="attendance-mark"),
+    path("attendance/today", MyAttendanceTodayView.as_view(), name="attendance-today"),
+    path("attendance/list", AttendanceListView.as_view(), name="attendance-list"),
     path("settings/notifications", NotificationSettingsView.as_view(), name="settings-notifications"),
     path(
         "settings/pos-checkout-notifications",

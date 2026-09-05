@@ -36,3 +36,8 @@ class AdjustmentType(models.TextChoices):
     LOSS = "LOSS", "Loss"
     CORRECTION = "CORRECTION", "Correction"
     FOUND = "FOUND", "Found"
+
+
+class ShopPlan(models.TextChoices):
+    FREE = "FREE", "Free"
+    PRO = "PRO", "Pro"

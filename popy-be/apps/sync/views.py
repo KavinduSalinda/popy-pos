@@ -28,6 +28,7 @@ class BootstrapSyncView(ShopScopedMixin, APIView):
         )
         customers = Customer.objects.filter(shop=shop).order_by("name")[:200]
         settings = NotificationSettings.load(shop)
+        pro = shop.is_pro
 
         return Response(
             dict_to_camel_case(
@@ -36,10 +37,12 @@ class BootstrapSyncView(ShopScopedMixin, APIView):
                     "products": PosProductSerializer(products, many=True).data,
                     "customers": CustomerSerializer(customers, many=True).data,
                     "checkout_settings": {
-                        "email_enabled": settings.pos_checkout_email_enabled,
-                        "sms_enabled": settings.pos_checkout_sms_enabled,
-                        "cashier_email_enabled": settings.pos_checkout_cashier_email_enabled,
-                        "cashier_sms_enabled": settings.pos_checkout_cashier_sms_enabled,
+                        "email_enabled": pro and settings.pos_checkout_email_enabled,
+                        "sms_enabled": pro and settings.pos_checkout_sms_enabled,
+                        "cashier_email_enabled": pro
+                        and settings.pos_checkout_cashier_email_enabled,
+                        "cashier_sms_enabled": pro
+                        and settings.pos_checkout_cashier_sms_enabled,
                     },
                 }
             )

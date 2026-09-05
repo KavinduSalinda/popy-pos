@@ -21,6 +21,8 @@ def _dispatch(*, email_enabled: bool, sms_enabled: bool, email: str | None, phon
 
 
 def notify_pos_checkout(sale, *, send_email: bool = False, send_sms: bool = False, user=None) -> None:
+    if not getattr(sale.shop, "is_pro", False):
+        return
     settings = _get_settings(sale.shop)
     customer = sale.customer
     if not customer:
@@ -82,6 +84,8 @@ def notify_pos_checkout(sale, *, send_email: bool = False, send_sms: bool = Fals
 
 
 def notify_low_inventory(product) -> None:
+    if not getattr(product.shop, "is_pro", False):
+        return
     settings = _get_settings(product.shop)
     subject = f"Low stock: {product.name}"
     html = (
@@ -108,6 +112,8 @@ def notify_low_inventory(product) -> None:
 
 
 def notify_new_customer(customer) -> None:
+    if not getattr(customer.shop, "is_pro", False):
+        return
     settings = _get_settings(customer.shop)
     subject = "Welcome to Popy POS"
     html = f"<p>Hi {customer.name},</p><p>Your customer account has been created. We look forward to serving you.</p>"
@@ -128,6 +134,8 @@ def notify_new_customer(customer) -> None:
 
 def notify_new_user(user, *, temporary_password: str | None = None) -> None:
     if not user.shop_id:
+        return
+    if not getattr(user.shop, "is_pro", False):
         return
     settings = _get_settings(user.shop)
     subject = "Your Popy POS account"

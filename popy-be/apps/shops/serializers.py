@@ -13,6 +13,7 @@ class ShopSerializer(CamelCaseModelSerializer):
             "phone",
             "email",
             "is_active",
+            "plan",
             "created_at",
             "updated_at",
         ]

@@ -12,6 +12,7 @@ import AssignmentReturn from '@mui/icons-material/AssignmentReturn';
 import ManageAccounts from '@mui/icons-material/ManageAccounts';
 import Assessment from '@mui/icons-material/Assessment';
 import Settings from '@mui/icons-material/Settings';
+import EventAvailable from '@mui/icons-material/EventAvailable';
 import { PERMISSIONS, type Permission } from '@/constants/permissions';
 import { ROUTES } from '@/constants/routes';
 
@@ -19,7 +20,11 @@ export interface NavItem {
   label: string;
   path: string;
   icon: ElementType;
-  permission: Permission;
+  permission?: Permission;
+  /** Show in nav if the user has any of these permissions. */
+  anyOf?: Permission[];
+  /** Feature requires the current shop to be on the Pro plan. */
+  requiresPro?: boolean;
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -34,6 +39,13 @@ export const NAV_ITEMS: NavItem[] = [
     path: ROUTES.POS,
     icon: PointOfSale,
     permission: PERMISSIONS.POS_ACCESS,
+  },
+  {
+    label: 'Attendance',
+    path: ROUTES.ATTENDANCE,
+    icon: EventAvailable,
+    anyOf: [PERMISSIONS.ATTENDANCE_MARK, PERMISSIONS.ATTENDANCE_VIEW],
+    requiresPro: true,
   },
   {
     label: 'Products',
@@ -100,5 +112,6 @@ export const NAV_ITEMS: NavItem[] = [
     path: ROUTES.SETTINGS,
     icon: Settings,
     permission: PERMISSIONS.SETTINGS_MANAGE,
+    requiresPro: true,
   },
 ];

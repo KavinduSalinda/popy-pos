@@ -29,6 +29,8 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         "USER_VIEW",
         "USER_MANAGE",
         "SETTINGS_MANAGE",
+        "ATTENDANCE_MARK",
+        "ATTENDANCE_VIEW",
     },
     "CASHIER": {
         "PRODUCT_VIEW",
@@ -41,6 +43,7 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         "CUSTOMER_VIEW",
         "CUSTOMER_MANAGE",
         "DASHBOARD_VIEW",
+        "ATTENDANCE_MARK",
     },
     "INVENTORY_OFFICER": {
         "PRODUCT_VIEW",
@@ -54,6 +57,7 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         "RETURN_CREATE",
         "RETURN_VIEW",
         "DASHBOARD_VIEW",
+        "ATTENDANCE_MARK",
     },
 }
 
@@ -69,7 +73,9 @@ def get_permissions_for_role(role: str) -> list[str]:
         all_perms: set[str] = set()
         for role_perms in ROLE_PERMISSIONS.values():
             all_perms.update(role_perms - {"*"})
-        all_perms.update({"SETTINGS_MANAGE", "SHOP_MANAGE"})
+        all_perms.update({"SETTINGS_MANAGE", "SHOP_MANAGE", "ATTENDANCE_VIEW"})
+        # Super admins view attendance sheets but do not mark day attendance.
+        all_perms.discard("ATTENDANCE_MARK")
         return sorted(all_perms)
     return sorted(perms)
 

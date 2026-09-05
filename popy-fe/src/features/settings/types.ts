@@ -12,6 +12,9 @@ export interface NotificationSettings {
   newUserEmailEnabled: boolean;
   newUserSmsEnabled: boolean;
   updatedAt: string;
+  /** Present on GET; Pro-only feature gate. */
+  isProFeature?: boolean;
+  proEnabled?: boolean;
 }
 
 export type NotificationSettingsPayload = Omit<
@@ -26,4 +29,5 @@ export interface PosCheckoutNotificationOptions {
   cashierSmsEnabled: boolean;
   canSendEmail: boolean;
   canSendSms: boolean;
+  proEnabled?: boolean;
 }

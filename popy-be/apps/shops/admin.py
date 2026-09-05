@@ -3,10 +3,8 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 from apps.accounts.models import User
-from apps.catalog.models import Category, Product
+from apps.catalog.models import Category
 from apps.parties.models import Customer, Supplier
-from apps.purchasing.models import Purchase
-from apps.sales.models import Sale
 from apps.settings.models import NotificationSettings
 from apps.shops.models import Shop
 
@@ -33,28 +31,6 @@ class CategoryInline(ShopTabularInline):
     extra = 1
 
 
-class ProductInline(ShopTabularInline):
-    model = Product
-    fields = (
-        "name",
-        "sku",
-        "category",
-        "unit",
-        "cost_price",
-        "selling_price",
-        "stock_quantity",
-        "status",
-    )
-    extra = 1
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "category":
-            shop_id = request.resolver_match.kwargs.get("object_id")
-            if shop_id:
-                kwargs["queryset"] = Category.objects.filter(shop_id=shop_id)
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-
 class CustomerInline(ShopTabularInline):
     model = Customer
     fields = ("name", "phone", "email", "loyalty_points")
@@ -65,40 +41,6 @@ class SupplierInline(ShopTabularInline):
     model = Supplier
     fields = ("name", "company_name", "phone", "email")
     extra = 1
-
-
-class SaleInline(ShopTabularInline):
-    model = Sale
-    fields = ("reference", "customer", "total", "payment_method", "created_at")
-    readonly_fields = ("reference", "created_at")
-    can_delete = False
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "customer":
-            shop_id = request.resolver_match.kwargs.get("object_id")
-            if shop_id:
-                kwargs["queryset"] = Customer.objects.filter(shop_id=shop_id)
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-
-class PurchaseInline(ShopTabularInline):
-    model = Purchase
-    fields = ("reference", "supplier", "status", "total", "created_at")
-    readonly_fields = ("reference", "created_at")
-    can_delete = False
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "supplier":
-            shop_id = request.resolver_match.kwargs.get("object_id")
-            if shop_id:
-                kwargs["queryset"] = Supplier.objects.filter(shop_id=shop_id)
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-    def has_add_permission(self, request, obj=None):
-        return False
 
 
 class NotificationSettingsInline(admin.StackedInline):
@@ -144,12 +86,12 @@ class NotificationSettingsInline(admin.StackedInline):
 
 @admin.register(Shop)
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ("name", "code", "phone", "is_active", "updated_at")
-    list_filter = ("is_active",)
+    list_display = ("name", "code", "plan", "phone", "is_active", "updated_at")
+    list_filter = ("is_active", "plan")
     search_fields = ("name", "code")
 
     fieldsets = (
-        (None, {"fields": ("name", "code", "address", "phone", "email", "is_active")}),
+        (None, {"fields": ("name", "code", "address", "phone", "email", "is_active", "plan")}),
         ("Links", {"fields": ("manage_users_link",)}),
     )
     readonly_fields = ("manage_users_link",)
@@ -157,11 +99,8 @@ class ShopAdmin(admin.ModelAdmin):
     inlines = [
         UserInline,
         CategoryInline,
-        ProductInline,
         CustomerInline,
         SupplierInline,
-        SaleInline,
-        PurchaseInline,
         NotificationSettingsInline,
     ]
 
@@ -179,6 +118,6 @@ class ShopAdmin(admin.ModelAdmin):
     def get_fieldsets(self, request, obj=None):
         if obj is None:
             return (
-                (None, {"fields": ("name", "code", "address", "phone", "email", "is_active")}),
+                (None, {"fields": ("name", "code", "address", "phone", "email", "is_active", "plan")}),
             )
         return super().get_fieldsets(request, obj)
