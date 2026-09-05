@@ -148,15 +148,23 @@ export const CartPanel = ({ onCheckout }: CartPanelProps) => {
                     >
                       <Remove fontSize="small" />
                     </IconButton>
-                    <Typography
-                      variant="body2"
-                      sx={{ minWidth: 24, textAlign: 'center' }}
-                    >
-                      {item.quantity}
-                    </Typography>
+                    <CartQuantityInput
+                      productId={item.productId}
+                      quantity={item.quantity}
+                      max={item.stockQuantity}
+                      onCommit={(quantity) =>
+                        dispatch(
+                          setItemQuantity({
+                            productId: item.productId,
+                            quantity,
+                          }),
+                        )
+                      }
+                    />
                     <IconButton
                       size="small"
                       aria-label="increase quantity"
+                      disabled={item.quantity >= item.stockQuantity}
                       onClick={() =>
                         dispatch(
                           setItemQuantity({
@@ -204,6 +212,73 @@ export const CartPanel = ({ onCheckout }: CartPanelProps) => {
         </Button>
       </Stack>
     </Stack>
+  );
+};
+
+const CartQuantityInput = ({
+  productId,
+  quantity,
+  max,
+  onCommit,
+}: {
+  productId: string | number;
+  quantity: number;
+  max: number;
+  onCommit: (quantity: number) => void;
+}) => {
+  const [draft, setDraft] = useState(String(quantity));
+
+  useEffect(() => {
+    setDraft(String(quantity));
+  }, [quantity, productId]);
+
+  const commit = () => {
+    const parsed = Number.parseInt(draft, 10);
+    if (!Number.isFinite(parsed)) {
+      setDraft(String(quantity));
+      return;
+    }
+    const next = Math.max(1, Math.min(parsed, Math.max(1, max)));
+    setDraft(String(next));
+    if (next !== quantity) onCommit(next);
+  };
+
+  return (
+    <TextField
+      size="small"
+      type="number"
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onFocus={(e) => e.target.select()}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          (e.target as HTMLInputElement).blur();
+        }
+      }}
+      inputProps={{
+        min: 1,
+        max,
+        inputMode: 'numeric',
+        'aria-label': 'quantity',
+        style: { textAlign: 'center', padding: '4px 2px' },
+      }}
+      sx={{
+        width: 52,
+        '& .MuiOutlinedInput-root': {
+          borderRadius: 1.5,
+        },
+        '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button':
+          {
+            WebkitAppearance: 'none',
+            margin: 0,
+          },
+        '& input[type=number]': {
+          MozAppearance: 'textfield',
+        },
+      }}
+    />
   );
 };
 
