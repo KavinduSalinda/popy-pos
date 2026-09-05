@@ -56,6 +56,7 @@ class PosProductSerializer(CamelCaseModelSerializer):
             "name",
             "sku",
             "barcode",
+            "unit",
             "selling_price",
             "stock_quantity",
             "category_name",

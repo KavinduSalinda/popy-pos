@@ -7,6 +7,11 @@ import type { RootState } from '@/app/store';
 import { APP_CONFIG } from '@/constants';
 import { toNumber } from '@/utils';
 import type { ID } from '@/types';
+import {
+  clampQuantity,
+  normalizeProductUnit,
+  quantityStepForUnit,
+} from '@/features/products/schema';
 import type { CartItem, PaymentMethod, PosProduct } from './types';
 
 interface CartState {
@@ -29,14 +34,21 @@ const cartSlice = createSlice({
   reducers: {
     addItem: (state, action: PayloadAction<PosProduct>) => {
       const product = action.payload;
+      const unit = product.unit ? normalizeProductUnit(product.unit) : undefined;
+      const step = quantityStepForUnit(unit);
       const existing = state.items.find((i) => i.productId === product.id);
       if (existing) {
-        if (existing.quantity < product.stockQuantity) existing.quantity += 1;
+        existing.quantity = clampQuantity(
+          existing.quantity + step,
+          existing.stockQuantity,
+          existing.unit,
+        );
       } else {
         state.items.push({
           productId: product.id,
           name: product.name,
           sku: product.sku,
+          unit,
           unitPrice: toNumber(product.sellingPrice),
           quantity: 1,
           stockQuantity: toNumber(product.stockQuantity),
@@ -51,11 +63,11 @@ const cartSlice = createSlice({
         (i) => i.productId === action.payload.productId,
       );
       if (!item) return;
-      const qty = Math.max(
-        1,
-        Math.min(action.payload.quantity, item.stockQuantity),
+      item.quantity = clampQuantity(
+        action.payload.quantity,
+        item.stockQuantity,
+        item.unit,
       );
-      item.quantity = qty;
     },
     removeItem: (state, action: PayloadAction<ID>) => {
       state.items = state.items.filter((i) => i.productId !== action.payload);

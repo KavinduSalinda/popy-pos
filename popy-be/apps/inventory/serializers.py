@@ -10,7 +10,7 @@ class InventoryRowSerializer(CamelCaseSerializer):
     product_id = serializers.IntegerField()
     product_name = serializers.CharField()
     sku = serializers.CharField()
-    stock_quantity = serializers.IntegerField()
+    stock_quantity = serializers.DecimalField(max_digits=14, decimal_places=3)
     reorder_level = serializers.IntegerField()
     status = serializers.CharField()
 
@@ -36,5 +36,5 @@ class StockTransactionSerializer(CamelCaseModelSerializer):
 class StockAdjustmentCreateSerializer(CamelCaseSerializer):
     product_id = serializers.IntegerField()
     adjustment_type = serializers.ChoiceField(choices=AdjustmentType.choices)
-    quantity = serializers.IntegerField()
+    quantity = serializers.DecimalField(max_digits=14, decimal_places=3)
     note = serializers.CharField(required=False, allow_blank=True, default="")

@@ -14,6 +14,7 @@ import {
 } from '../productsApi';
 import {
   PRODUCT_UNITS,
+  normalizeProductUnit,
   productSchema,
   type ProductFormValues,
 } from '../schema';
@@ -85,7 +86,7 @@ export const ProductFormDialog = ({
               barcode: product.barcode ?? '',
               categoryId: product.categoryId,
               brand: product.brand ?? '',
-              unit: product.unit,
+              unit: normalizeProductUnit(product.unit),
               costPrice: product.costPrice,
               sellingPrice: product.sellingPrice,
               reorderLevel: product.reorderLevel,
@@ -99,6 +100,7 @@ export const ProductFormDialog = ({
   const onSubmit = handleSubmit(async (values) => {
     const payload: ProductPayload = {
       ...values,
+      unit: normalizeProductUnit(values.unit),
       barcode: values.barcode || undefined,
       brand: values.brand || undefined,
     };

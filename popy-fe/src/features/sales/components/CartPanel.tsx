@@ -16,6 +16,13 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { EmptyState } from '@/components/common';
 import { formatCurrency } from '@/utils';
 import { useGetCustomersQuery } from '@/features/customers/customersApi';
+import {
+  allowsFractionalQuantity,
+  clampQuantity,
+  formatQuantityLabel,
+  minQuantityForUnit,
+  quantityStepForUnit,
+} from '@/features/products/schema';
 import { getCachedCustomers } from '@/offline/catalogCache';
 import { useOnlineStatus } from '@/offline/hooks/useOnlineStatus';
 import {
@@ -137,11 +144,15 @@ export const CartPanel = ({ onCheckout }: CartPanelProps) => {
                     <IconButton
                       size="small"
                       aria-label="decrease quantity"
+                      disabled={
+                        item.quantity <= minQuantityForUnit(item.unit)
+                      }
                       onClick={() =>
                         dispatch(
                           setItemQuantity({
                             productId: item.productId,
-                            quantity: item.quantity - 1,
+                            quantity:
+                              item.quantity - quantityStepForUnit(item.unit),
                           }),
                         )
                       }
@@ -152,6 +163,7 @@ export const CartPanel = ({ onCheckout }: CartPanelProps) => {
                       productId={item.productId}
                       quantity={item.quantity}
                       max={item.stockQuantity}
+                      unit={item.unit}
                       onCommit={(quantity) =>
                         dispatch(
                           setItemQuantity({
@@ -169,13 +181,19 @@ export const CartPanel = ({ onCheckout }: CartPanelProps) => {
                         dispatch(
                           setItemQuantity({
                             productId: item.productId,
-                            quantity: item.quantity + 1,
+                            quantity:
+                              item.quantity + quantityStepForUnit(item.unit),
                           }),
                         )
                       }
                     >
                       <Add fontSize="small" />
                     </IconButton>
+                    {item.unit ? (
+                      <Typography variant="caption" color="text.secondary">
+                        {item.unit}
+                      </Typography>
+                    ) : null}
                   </Stack>
                   <Typography variant="subtitle2">
                     {formatCurrency(item.unitPrice * item.quantity)}
@@ -219,27 +237,30 @@ const CartQuantityInput = ({
   productId,
   quantity,
   max,
+  unit,
   onCommit,
 }: {
   productId: string | number;
   quantity: number;
   max: number;
+  unit?: string;
   onCommit: (quantity: number) => void;
 }) => {
-  const [draft, setDraft] = useState(String(quantity));
+  const fractional = allowsFractionalQuantity(unit);
+  const [draft, setDraft] = useState(formatQuantityLabel(quantity, unit));
 
   useEffect(() => {
-    setDraft(String(quantity));
-  }, [quantity, productId]);
+    setDraft(formatQuantityLabel(quantity, unit));
+  }, [quantity, productId, unit]);
 
   const commit = () => {
-    const parsed = Number.parseInt(draft, 10);
+    const parsed = Number.parseFloat(draft.replace(',', '.'));
     if (!Number.isFinite(parsed)) {
-      setDraft(String(quantity));
+      setDraft(formatQuantityLabel(quantity, unit));
       return;
     }
-    const next = Math.max(1, Math.min(parsed, Math.max(1, max)));
-    setDraft(String(next));
+    const next = clampQuantity(parsed, max, unit);
+    setDraft(formatQuantityLabel(next, unit));
     if (next !== quantity) onCommit(next);
   };
 
@@ -257,15 +278,21 @@ const CartQuantityInput = ({
           (e.target as HTMLInputElement).blur();
         }
       }}
+      title={
+        fractional
+          ? 'Enter kg or litres (e.g. 1.5 = 1kg + 500g)'
+          : 'Enter whole quantity'
+      }
       inputProps={{
-        min: 1,
+        min: minQuantityForUnit(unit),
         max,
-        inputMode: 'numeric',
+        step: fractional ? 0.001 : 1,
+        inputMode: fractional ? 'decimal' : 'numeric',
         'aria-label': 'quantity',
         style: { textAlign: 'center', padding: '4px 2px' },
       }}
       sx={{
-        width: 52,
+        width: fractional ? 72 : 52,
         '& .MuiOutlinedInput-root': {
           borderRadius: 1.5,
         },

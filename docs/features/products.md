@@ -15,7 +15,7 @@ The products page (`/products`) manages the sellable catalog. Each product links
 | Barcode | Optional unique barcode for scanning |
 | Category | Required category assignment |
 | Brand | Optional brand name |
-| Unit | Unit of measure (e.g. pcs, kg) |
+| Unit | Unit of measure (pcs, kg/g, litre/ml, box, pack, dozen) |
 | Cost price | Purchase cost |
 | Selling price | POS sale price |
 | Reorder level | Threshold for low-stock alerts |

@@ -31,7 +31,7 @@ class Product(TimeStampedModel):
     cost_price = models.DecimalField(max_digits=12, decimal_places=2)
     selling_price = models.DecimalField(max_digits=12, decimal_places=2)
     reorder_level = models.IntegerField(default=0)
-    stock_quantity = models.IntegerField(default=0)
+    stock_quantity = models.DecimalField(max_digits=14, decimal_places=3, default=0)
     status = models.BooleanField(default=True)
 
     class Meta:

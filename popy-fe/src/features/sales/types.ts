@@ -7,6 +7,7 @@ export interface PosProduct {
   name: string;
   sku: string;
   barcode?: string;
+  unit?: string;
   sellingPrice: number;
   stockQuantity: number;
   categoryName?: string;
@@ -16,6 +17,7 @@ export interface CartItem {
   productId: ID;
   name: string;
   sku: string;
+  unit?: string;
   unitPrice: number;
   quantity: number;
   stockQuantity: number;

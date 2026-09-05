@@ -26,12 +26,20 @@ describe('cartSlice', () => {
     expect(state.items[0]?.quantity).toBe(2);
   });
 
-  it('respects stock limits when setting quantity', () => {
+  it('allows fractional kg quantities', () => {
+    const chicken: PosProduct = {
+      id: 2,
+      name: 'Chicken Whole 1kg',
+      sku: 'CHK-01',
+      unit: 'kg',
+      sellingPrice: 1050,
+      stockQuantity: 10,
+    };
     const state = cartReducer(
-      cartReducer(undefined, addItem(product)),
-      setItemQuantity({ productId: 1, quantity: 99 }),
+      cartReducer(undefined, addItem(chicken)),
+      setItemQuantity({ productId: 2, quantity: 1.5 }),
     );
-    expect(state.items[0]?.quantity).toBe(5);
+    expect(state.items[0]?.quantity).toBe(1.5);
   });
 
   it('computes totals with discount and tax', () => {

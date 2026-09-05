@@ -5,6 +5,7 @@ import type { CreateSalePayload, PosProduct, Sale } from './types';
 
 const normalizePosProduct = (product: PosProduct): PosProduct => ({
   ...product,
+  unit: product.unit,
   sellingPrice: toNumber(product.sellingPrice),
   stockQuantity: toNumber(product.stockQuantity),
 });

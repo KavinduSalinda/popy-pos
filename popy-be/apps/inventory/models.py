@@ -9,8 +9,8 @@ from apps.core.models import TimeStampedModel
 class StockTransaction(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="stock_transactions")
     type = models.CharField(max_length=20, choices=StockTransactionType.choices)
-    quantity = models.IntegerField()
-    balance = models.IntegerField()
+    quantity = models.DecimalField(max_digits=14, decimal_places=3)
+    balance = models.DecimalField(max_digits=14, decimal_places=3)
     note = models.CharField(max_length=255, blank=True, null=True)
     reference_type = models.CharField(max_length=50, blank=True, default="")
     reference_id = models.BigIntegerField(blank=True, null=True)
@@ -26,7 +26,7 @@ class StockTransaction(models.Model):
 class StockAdjustment(TimeStampedModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="adjustments")
     adjustment_type = models.CharField(max_length=20, choices=AdjustmentType.choices)
-    quantity = models.IntegerField()
+    quantity = models.DecimalField(max_digits=14, decimal_places=3)
     note = models.TextField(blank=True, null=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
