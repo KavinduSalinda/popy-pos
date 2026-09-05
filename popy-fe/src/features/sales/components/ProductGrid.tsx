@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
-import { Box, IconButton, Stack, Tooltip } from '@mui/material';
+import { useEffect, useMemo, useState } from 'react';
+import { Box, IconButton, Stack, Tooltip, useMediaQuery } from '@mui/material';
 import AddShoppingCart from '@mui/icons-material/AddShoppingCart';
-import type { GridColDef } from '@mui/x-data-grid';
+import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 import { toast } from 'react-toastify';
 import { useAppDispatch } from '@/app/hooks';
 import {
@@ -20,6 +20,10 @@ import { addItem } from '../cartSlice';
 import { BarcodeScanField } from './BarcodeScanField';
 import type { PosProduct } from '../types';
 
+const MOBILE_MAX_WIDTH_PX = 560;
+const MOBILE_PAGE_SIZE = 20;
+const DESKTOP_PAGE_SIZE = 20;
+
 interface ProductGridProps {
   onBarcodeScan: (code: string) => void | Promise<boolean>;
   scanDisabled?: boolean;
@@ -30,8 +34,17 @@ export const ProductGrid = ({
   scanDisabled = false,
 }: ProductGridProps) => {
   const dispatch = useAppDispatch();
+  const isMobile = useMediaQuery(`(max-width:${MOBILE_MAX_WIDTH_PX - 0.05}px)`, {
+    defaultMatches:
+      typeof window !== 'undefined' && window.innerWidth < MOBILE_MAX_WIDTH_PX,
+    noSsr: true,
+  });
   const [search, setSearch] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: isMobile ? MOBILE_PAGE_SIZE : DESKTOP_PAGE_SIZE,
+  });
   const debouncedSearch = useDebounce(search, 350);
   const { isOffline } = useOnlineStatus();
   const { offlineProducts, offlineLoading } = useOfflineCatalog(debouncedSearch);
@@ -41,6 +54,13 @@ export const ProductGrid = ({
   const data = isOffline ? offlineProducts : onlineData;
   const isFetching = isOffline ? offlineLoading : onlineFetching;
 
+  useEffect(() => {
+    setPaginationModel((prev) => ({
+      page: 0,
+      pageSize: isMobile ? MOBILE_PAGE_SIZE : prev.pageSize || DESKTOP_PAGE_SIZE,
+    }));
+  }, [isMobile, debouncedSearch]);
+
   const addToCart = (product: PosProduct) => {
     if (product.stockQuantity <= 0) {
       toast.error(`${product.name} is out of stock`);
@@ -49,7 +69,7 @@ export const ProductGrid = ({
       toast.success(`${product.name} added to cart`);
     }
     // Keep the on-screen keyboard closed after tapping a product on phones.
-    if (window.innerWidth < 560) {
+    if (window.innerWidth < MOBILE_MAX_WIDTH_PX) {
       const active = document.activeElement;
       if (
         active instanceof HTMLElement &&
@@ -172,10 +192,12 @@ export const ProductGrid = ({
             columns={columns}
             loading={isFetching}
             paginationMode="client"
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
             autoHeight={false}
             height="100%"
             sx={{ height: '100%', minHeight: 320 }}
-            pageSizeOptions={[10, 20, 50]}
+            pageSizeOptions={isMobile ? [MOBILE_PAGE_SIZE] : [10, 20, 50]}
             onRowClick={(params) => addToCart(params.row)}
           />
         ) : null}
