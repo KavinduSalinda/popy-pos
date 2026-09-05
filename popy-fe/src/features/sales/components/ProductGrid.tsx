@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Box, IconButton, Stack, Tooltip } from '@mui/material';
 import AddShoppingCart from '@mui/icons-material/AddShoppingCart';
 import type { GridColDef } from '@mui/x-data-grid';
+import { toast } from 'react-toastify';
 import { useAppDispatch } from '@/app/hooks';
 import {
   EmptyState,
@@ -41,8 +42,22 @@ export const ProductGrid = ({
   const isFetching = isOffline ? offlineLoading : onlineFetching;
 
   const addToCart = (product: PosProduct) => {
-    if (product.stockQuantity <= 0) return;
-    dispatch(addItem(product));
+    if (product.stockQuantity <= 0) {
+      toast.error(`${product.name} is out of stock`);
+    } else {
+      dispatch(addItem(product));
+      toast.success(`${product.name} added to cart`);
+    }
+    // Keep the on-screen keyboard closed after tapping a product on phones.
+    if (window.innerWidth < 560) {
+      const active = document.activeElement;
+      if (
+        active instanceof HTMLElement &&
+        active.dataset.barcodeScan === 'true'
+      ) {
+        active.blur();
+      }
+    }
   };
 
   const columns = useMemo<GridColDef<PosProduct>[]>(

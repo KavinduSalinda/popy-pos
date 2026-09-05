@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { InputAdornment, TextField } from '@mui/material';
+import { InputAdornment, TextField, useMediaQuery } from '@mui/material';
 import QrCodeScanner from '@mui/icons-material/QrCodeScanner';
 
+/** Match phones / small devices where the on-screen keyboard should not pop open. */
+const NARROW_MAX_WIDTH_PX = 768;
+
 const EDITABLE_TAGS = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
+
+const isNarrowViewport = () =>
+  typeof window !== 'undefined' && window.innerWidth < NARROW_MAX_WIDTH_PX;
 
 const shouldRetainFocusElsewhere = (
   active: Element | null,
@@ -23,6 +29,10 @@ const shouldRetainFocusElsewhere = (
   ) {
     return true;
   }
+  // Product grid / cart interactions — do not yank focus back to the scanner.
+  if (active.closest('.MuiDataGrid-root, [data-pos-cart]')) {
+    return true;
+  }
   return false;
 };
 
@@ -38,8 +48,21 @@ export const BarcodeScanField = ({
   pauseAutoFocus = false,
   disabled = false,
 }: BarcodeScanFieldProps) => {
+  const isNarrow = useMediaQuery(`(max-width:${NARROW_MAX_WIDTH_PX - 0.05}px)`, {
+    defaultMatches: isNarrowViewport(),
+    noSsr: true,
+  });
+  const autoFocusEnabled = !isNarrow && !pauseAutoFocus && !disabled;
+  const autoFocusEnabledRef = useRef(autoFocusEnabled);
+  autoFocusEnabledRef.current = autoFocusEnabled;
+
   const inputRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef('');
+
+  const focusIfAllowed = useCallback(() => {
+    if (!autoFocusEnabledRef.current || isNarrowViewport()) return;
+    inputRef.current?.focus();
+  }, []);
 
   const submit = useCallback(async () => {
     const code = valueRef.current.trim();
@@ -49,14 +72,12 @@ export const BarcodeScanField = ({
       valueRef.current = '';
       if (inputRef.current) inputRef.current.value = '';
     }
-    inputRef.current?.focus();
-  }, [disabled, onScan]);
+    focusIfAllowed();
+  }, [disabled, focusIfAllowed, onScan]);
 
   useEffect(() => {
-    if (!disabled && !pauseAutoFocus) {
-      inputRef.current?.focus();
-    }
-  }, [disabled, pauseAutoFocus]);
+    focusIfAllowed();
+  }, [focusIfAllowed, autoFocusEnabled]);
 
   return (
     <TextField
@@ -86,8 +107,9 @@ export const BarcodeScanField = ({
         }
       }}
       onBlur={() => {
-        if (pauseAutoFocus || disabled) return;
+        if (!autoFocusEnabledRef.current || isNarrowViewport()) return;
         window.setTimeout(() => {
+          if (!autoFocusEnabledRef.current || isNarrowViewport()) return;
           if (
             shouldRetainFocusElsewhere(document.activeElement, inputRef.current)
           ) {
@@ -96,7 +118,11 @@ export const BarcodeScanField = ({
           inputRef.current?.focus();
         }, 120);
       }}
-      helperText="USB scanner: focus this field and scan. Scans also work elsewhere on this page."
+      helperText={
+        isNarrow
+          ? 'Tap the field to scan or type a SKU / barcode, then press Enter.'
+          : 'USB scanner: focus this field and scan. Scans also work elsewhere on this page.'
+      }
     />
   );
 };
